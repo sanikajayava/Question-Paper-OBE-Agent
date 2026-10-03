@@ -1,0 +1,30 @@
+{
+"course": "Agentic AI",
+"course_code": "AAI301",
+"semester": 5,
+"total_marks": 50,
+"duration": "2 Hours",
+"exam_type": "Internal Assessment",
+"unit_weightage": {
+"Unit 1": 20,
+"Unit 2": 20,
+"Unit 3": 20,
+"Unit 4": 20,
+"Unit 5": 20
+},
+"bloom_distribution": {
+"L1": 30,
+"L2": 40,
+"L3": 30
+},
+"question_types": {
+"short": 40,
+"long": 60
+},
+"requirements": {
+"avoid_previously_used_questions": true,
+"allow_duplicate_questions": false,
+"generate_scheme_of_valuation": true,
+"require_faculty_approval": true
+}
+}

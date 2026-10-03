@@ -1,0 +1,110 @@
+[
+{
+"id": "Q001",
+"unit": "Unit 1",
+"question": "What is Artificial Intelligence?",
+"bloom": "L1",
+"marks": 2,
+"type": "short",
+"answer": "Artificial Intelligence is the simulation of human intelligence by machines."
+},
+{
+"id": "Q002",
+"unit": "Unit 1",
+"question": "Define an intelligent agent.",
+"bloom": "L1",
+"marks": 2,
+"type": "short",
+"answer": "An intelligent agent perceives its environment and takes actions to achieve goals."
+},
+{
+"id": "Q003",
+"unit": "Unit 1",
+"question": "Explain the working of a rational agent with an example.",
+"bloom": "L2",
+"marks": 5,
+"type": "long",
+"answer": "A rational agent selects actions that maximize expected performance based on its percepts and knowledge."
+},
+{
+"id": "Q004",
+"unit": "Unit 2",
+"question": "What is an AI tool?",
+"bloom": "L1",
+"marks": 2,
+"type": "short",
+"answer": "An AI tool is a callable capability that allows an agent to perform a specific task."
+},
+{
+"id": "Q005",
+"unit": "Unit 2",
+"question": "Explain how an AI agent uses external tools.",
+"bloom": "L2",
+"marks": 5,
+"type": "long",
+"answer": "An agent identifies a required action, invokes an appropriate tool, observes its result and continues its workflow."
+},
+{
+"id": "Q006",
+"unit": "Unit 3",
+"question": "Define reusable AI skills.",
+"bloom": "L1",
+"marks": 2,
+"type": "short",
+"answer": "Reusable AI skills are capability packages that can be invoked for specific tasks."
+},
+{
+"id": "Q007",
+"unit": "Unit 3",
+"question": "Explain the importance of memory in Agentic AI.",
+"bloom": "L2",
+"marks": 5,
+"type": "long",
+"answer": "Memory enables agents to retain information and use previous context or stored knowledge in future tasks."
+},
+{
+"id": "Q008",
+"unit": "Unit 4",
+"question": "What is persistent memory?",
+"bloom": "L1",
+"marks": 2,
+"type": "short",
+"answer": "Persistent memory stores information beyond the current execution session."
+},
+{
+"id": "Q009",
+"unit": "Unit 4",
+"question": "Explain the role of MCP in connecting AI agents with external resources.",
+"bloom": "L2",
+"marks": 5,
+"type": "long",
+"answer": "MCP provides a standardized way for AI applications to access external tools and resources."
+},
+{
+"id": "Q010",
+"unit": "Unit 5",
+"question": "What is an AI agent runtime?",
+"bloom": "L1",
+"marks": 2,
+"type": "short",
+"answer": "An AI agent runtime provides the environment in which agent workflows execute."
+},
+{
+"id": "Q011",
+"unit": "Unit 5",
+"question": "Explain the importance of audit logs in agentic systems.",
+"bloom": "L2",
+"marks": 5,
+"type": "long",
+"answer": "Audit logs record agent actions, tool calls and execution events for monitoring and debugging."
+},
+{
+"id": "Q012",
+"unit": "Unit 5",
+"question": "Design a basic workflow for an agent that selects and validates questions.",
+"bloom": "L3",
+"marks": 10,
+"type": "long",
+"answer": "A workflow should accept criteria, retrieve questions, filter candidates, select suitable questions and validate the final paper."
+}
+]
