@@ -15,10 +15,11 @@ class OpenClawRuntime:
     OpenCLA/OpenClaw Runtime for the Question Paper OBE Agent.
 
     Coordinates:
-    - Skills
-    - Tools
-    - Memory
-    - Audit Log
+    - Skills (Lab 1-6)
+    - Tools (Lab 1-6)
+    - Memory (Lab 1-6)
+    - Audit Log (Lab 1-6)
+    - NEW: Multi-Agent Coordinator (Lab 7-10)
     """
 
     def __init__(self):
@@ -39,15 +40,13 @@ class OpenClawRuntime:
 
         self.log_event("runtime_started", "success")
 
-        # Tool execution
+        # ===== LAB 1-6: ORIGINAL SKILL EXECUTION =====
         question_bank = read_question_bank()
         self.log_event("question_bank_tool", question_bank.get("status", "unknown"))
 
-        # Memory retrieval
         past_papers = self.memory.retrieve_by_tag("agents")
         self.log_event("memory_retrieval", "success")
 
-        # Skill execution
         blueprint = self.skill.create_blueprint({
             "total_marks": 50,
             "duration": "2 Hours",
@@ -83,13 +82,40 @@ class OpenClawRuntime:
             "audit_log": self.audit_log
         }
 
+    # ===== LAB 7-10: NEW MULTI-AGENT EXECUTION =====
+    def execute_multi_agent(self, subject, exam_type, target_batch, lesson_plan_path):
+        """Execute the NEW multi-agent coordinator (Lab 7-10)."""
+        self.log_event("multi_agent_started", "success")
+        
+        from agent.coordinator import QuestionPaperCoordinator
+        coordinator = QuestionPaperCoordinator()
+        
+        # Run the full 5-agent pipeline
+        coordinator.run_workflow(
+            subject=subject,
+            exam_type=exam_type,
+            target_batch=target_batch,
+            lesson_plan_path=lesson_plan_path
+        )
+        
+        self.log_event("multi_agent_completed", "success")
+        
+        return {
+            "multi_agent_status": "success",
+            "subject": subject,
+            "exam_type": exam_type,
+            "audit_log": self.audit_log
+        }
+
 
 if __name__ == "__main__":
+    # ===== TEST 1: Original Lab 1-6 Runtime =====
+    print("\n" + "=" * 60)
+    print("  TEST 1: ORIGINAL LAB 1-6 RUNTIME")
+    print("=" * 60)
+    
     runtime = OpenClawRuntime()
-
-    result = runtime.execute(
-        "Generate a 50-mark question paper for Agentic AI."
-    )
+    result = runtime.execute("Generate a 50-mark question paper for Agentic AI.")
 
     print("\n===== OPENCLA/OPENCLAW RUNTIME =====")
     print("Runtime:", result["runtime"])
@@ -97,9 +123,6 @@ if __name__ == "__main__":
 
     print("\n===== SKILL =====")
     print("Skill Status:", result["skill_status"])
-
-    print("\n===== TOOL =====")
-    print("Tool Status:", result["tool_status"])
 
     print("\n===== MEMORY =====")
     print("Past Papers Retrieved:", result["memory_count"])
@@ -109,8 +132,4 @@ if __name__ == "__main__":
 
     print("\n===== AUDIT LOG =====")
     for event in result["audit_log"]:
-        print(
-            f"{event['timestamp']} | "
-            f"{event['action']} | "
-            f"{event['status']}"
-        )
+        print(f"{event['timestamp']} | {event['action']} | {event['status']}")

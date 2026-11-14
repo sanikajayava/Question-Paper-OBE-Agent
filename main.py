@@ -1,18 +1,80 @@
-from tools.pdf_reader_tool import extract_text_from_pdf
+"""
+QUESTION PAPER OBE AGENT - MASTER DEMONSTRATION
+=============================================
+Team 6 | Agentic AI Labs 1-10
 
-pdf_path = "data/Question_Papers/Cloud_Computing/ESA/ESA_2025.pdf"
+This script demonstrates the complete lab progression:
+  PART 1: LAB 1-6 - Skills, Tools, Memory, Audit Logs
+  PART 2: LAB 6/14 - Question Paper Multi-Agent System
+  PART 3: LAB 7 - Agentic Node Graph
+  PART 4: LAB 8 - Parallel Swarm
+  PART 5: LAB 9 - Deep Research Agent
+  PART 6: LAB 10 - Cloud Operations Agent
+"""
 
-result = extract_text_from_pdf(pdf_path)
+import sys
+import os
 
-print("\n===== PDF READER TEST =====")
-print("Status:", result["status"])
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-if result["status"] == "success":
-    print("File:", result["file_name"])
-    print("Total Pages:", result["total_pages"])
+from runtime.openclaw_runtime import OpenClawRuntime
+from agent.lab7_node_graph_agent import NodeGraphAgent
+from agent.lab8_parallel_swarm_agent import ParallelSwarmAgent
+from agent.lab9_deep_research_agent import DeepResearchAgent
+from agent.lab10_cloud_ops_agent import CloudOpsAgent
 
-    for page in result["pages"]:
-        print(f"\n===== PAGE {page['page']} =====")
-        print(page["text"][:1000])
-else:
-    print("Error:", result["message"])
+def show_header(title):
+    print("\n" + "=" * 70)
+    print(f"  {title}")
+    print("=" * 70)
+
+def main():
+    # PART 1
+    show_header("PART 1: LAB 1-6 - SKILLS, TOOLS, MEMORY, AUDIT LOGS")
+    runtime = OpenClawRuntime()
+    result = runtime.execute("Generate a 50-mark blueprint for Agentic AI.")
+    print(f"✅ Lab 1-6 Status: {result['status']} (Audit events: {len(result['audit_log'])})")
+
+    # PART 2
+    show_header("PART 2: LAB 6/14 - QUESTION PAPER MULTI-AGENT SYSTEM")
+    print("Running 5-Agent Pipeline for Cloud Computing...")
+    try:
+        runtime.execute_multi_agent(
+            subject="Cloud Computing", exam_type="ESA",
+            target_batch="Oct 2025 - Feb 2026",
+            lesson_plan_path="data/lesson_plans/Cloud_Computing_Lesson_Plan.txt"
+        )
+    except Exception as e:
+        print(f"❌ ERROR: {e}")
+
+    # PART 3
+    show_header("PART 3: LAB 7 - AGENTIC NODE GRAPH")
+    NodeGraphAgent().run_graph("Build a new Campus App for students")
+
+    # PART 4
+    show_header("PART 4: LAB 8 - PARALLEL SWARM")
+    ParallelSwarmAgent().run_swarm("Organize a 24-hour college Hackathon")
+
+    # PART 5
+    show_header("PART 5: LAB 9 - DEEP RESEARCH AGENT")
+    DeepResearchAgent().run("Generative AI in Education")
+
+    # PART 6
+    show_header("PART 6: LAB 10 - CLOUD OPERATIONS AGENT")
+    CloudOpsAgent().run()
+
+    # SUMMARY
+    show_header("🎉 FULL LAB 1-10 DEMONSTRATION COMPLETE 🎉")
+    print("""
+✅ Lab 1-6: Foundations & Memory
+✅ Lab 6/14: Question Paper Capstone
+✅ Lab 7: Node Graph
+✅ Lab 8: Parallel Swarm
+✅ Lab 9: Deep Research Loop
+✅ Lab 10: Cloud Operations
+
+📁 Check the output/ folder for generated JSON papers.
+    """)
+
+if __name__ == "__main__":
+    main()

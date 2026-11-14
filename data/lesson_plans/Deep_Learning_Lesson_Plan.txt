@@ -1,0 +1,22 @@
+COURSE: Deep Learning
+SEMESTER: VI
+
+UNIT 1: Neural Networks Fundamentals
+- CNN architecture
+- VGG-16
+- Activation functions
+- Dropout
+- Data augmentation
+
+UNIT 2: Advanced Networks
+- ResNet
+- MobileNet
+- RNN and LSTM
+- GRU
+- Object detection (YOLO, RCNN)
+
+UNIT 3: Segmentation and Transfer Learning
+- UNet architecture
+- Transfer learning
+- Adversarial attacks
+- Word embeddings

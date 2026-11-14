@@ -1,3 +1,5 @@
 __pycache__/
 *.pyc
-data/question_bank.db
+*.db
+.env
+output/

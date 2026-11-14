@@ -1,0 +1,23 @@
+COURSE: Gen AI
+SEMESTER: VI
+
+UNIT 1: NLP and Transformers
+- Text preprocessing
+- Word2Vec
+- Seq2Seq models
+- Transformer architecture
+- Self-Attention
+
+UNIT 2: Generative Models
+- GAN and CycleGAN
+- StyleGAN
+- Autoencoders
+- Denoising Autoencoders
+
+UNIT 3: Diffusion and LLMs
+- Diffusion models
+- Stable Diffusion
+- DALL-E
+- CLIP
+- Prompt engineering
+- BERT, GPT, T5

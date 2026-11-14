@@ -1,39 +1,48 @@
-
 import pymupdf
-from pathlib import Path
+import pytesseract
+from PIL import Image
+import io
 
+# ==========================================
+# CONFIGURATION: Tell Python where Tesseract is
+# ==========================================
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 def extract_text_from_pdf(pdf_path):
-    """Extract text from all pages of a PDF file."""
-    pdf_path = Path(pdf_path)
-
-    if not pdf_path.exists():
-        return {
-            "status": "error",
-            "message": f"PDF not found: {pdf_path}"
-        }
-
+    """
+    Extracts text from a PDF. If the PDF is scanned (no text),
+    it converts the page to an image and uses OCR.
+    """
     try:
-        extracted_pages = []
-
-        with pymupdf.open(pdf_path) as document:
-            for page_number, page in enumerate(document, start=1):
-                text = page.get_text("text")
-
-                extracted_pages.append({
-                    "page": page_number,
-                    "text": text.strip()
-                })
-
+        document = pymupdf.open(pdf_path)
+        extracted_text = ""
+        
+        for page_number, page in enumerate(document, start=1):
+            # 1. Try to extract normal text first (for digital PDFs)
+            text = page.get_text("text").strip()
+            
+            # 2. If no text is found, use OCR (for scanned PDFs)
+            if not text:
+                # Render page to a pixmap (image)
+                pix = page.get_pixmap(dpi=300) # 300 DPI gives good OCR accuracy
+                
+                # Convert pixmap to PIL Image
+                img_bytes = pix.tobytes("png")
+                img = Image.open(io.BytesIO(img_bytes))
+                
+                # Use Tesseract to extract text
+                text = pytesseract.image_to_string(img)
+                
+            extracted_text += f"\n--- Page {page_number} ---\n{text}\n"
+            
+        document.close()
         return {
             "status": "success",
-            "file_name": pdf_path.name,
-            "total_pages": len(extracted_pages),
-            "pages": extracted_pages
+            "text": extracted_text
         }
-
-    except Exception as error:
+        
+    except Exception as e:
         return {
             "status": "error",
-            "message": str(error)
+            "message": str(e)
         }
