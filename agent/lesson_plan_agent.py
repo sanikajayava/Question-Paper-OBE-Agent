@@ -9,70 +9,92 @@ class LessonPlanAgent:
         self.name = "Lesson Plan Agent"
 
     def read_lesson_plan(self, file_path):
-        """
-        Reads a lesson plan text file and extracts units and topics.
-        """
         print(f"\n[{self.name}] Reading lesson plan: {file_path}")
         
         if not os.path.exists(file_path):
             print(f"[{self.name}] ERROR: File not found.")
             return None
 
-        with open(file_path, "r", encoding="utf-8") as f:
-            content = f.read()
+        content = ""
+        if file_path.lower().endswith(".pdf"):
+            from tools.pdf_reader_tool import extract_text_from_pdf
+            result = extract_text_from_pdf(file_path)
+            if result["status"] == "success":
+                content = result["text"]
+            else:
+                return None
+        else:
+            with open(file_path, "r", encoding="utf-8") as f:
+                content = f.read()
 
-        # Extract course and semester
-        course_match = re.search(r'COURSE:\s*(.+)', content, re.IGNORECASE)
-        semester_match = re.search(r'SEMESTER:\s*(.+)', content, re.IGNORECASE)
+        # Extract Course Info
+        course_title = "Unknown Subject"
+        course_code = "Auto-Generated"
         
-        course = course_match.group(1).strip() if course_match else "Unknown"
-        semester = semester_match.group(1).strip() if semester_match else "Unknown"
-
-        # Extract units and topics
-        units = {}
-        current_unit = None
-
-        for line in content.split("\n"):
-            line = line.strip()
-            if not line:
-                continue
+        title_match = re.search(r'Course Title:\s*([^\n\r]+)', content, re.IGNORECASE)
+        if title_match:
+            course_title = title_match.group(1).split('Course Code')[0].strip()
             
-            # Match lines like "UNIT 1: ..." or "UNIT-I: ..."
-            unit_match = re.match(r'UNIT[\s\-]*([0-9IVX]+)[:\-]?\s*(.*)', line, re.IGNORECASE)
-            if unit_match:
-                current_unit = f"Unit {unit_match.group(1)}"
-                units[current_unit] = {
-                    "title": unit_match.group(2).strip(),
-                    "topics": []
-                }
-            elif current_unit and (line.startswith("-") or line.startswith("*")):
-                topic = line.lstrip("-* ").strip()
-                if topic:
-                    units[current_unit]["topics"].append(topic)
+        code_match = re.search(r'Course Code:\s*([A-Z0-9]+)', content, re.IGNORECASE)
+        if code_match:
+            course_code = code_match.group(1).strip()
 
-        structured_plan = {
-            "course": course,
-            "semester": semester,
-            "units": units,
-            "total_units": len(units),
-            "total_topics": sum(len(u["topics"]) for u in units.values())
+        all_questions = []
+        text = re.sub(r'\s+', ' ', content)
+        parts = re.split(r'(?=\b\d+[\.\)]\s)', text)
+        
+        banned_phrases = [
+            "describe the fundamental", "analyze deep learning", 
+            "apply deep learning", "build various deep", "course outcomes",
+            "at the end of the course"
+        ]
+        
+        for part in parts:
+            part = part.strip()
+            clean_line = re.sub(r'^\d+[\.\)]\s+', '', part)
+            
+            # 1. Chop off table columns like "H M", "L2", "2.1.3"
+            clean_line = re.split(r'\s+(?:L\d|H\s*[HM]|M\s*[HL]|CO\d|TLO\d|PI|Code|\d+%|✓|\b\d+\.\d+\.\d+\b)', clean_line, flags=re.IGNORECASE)[0]
+            
+            # 2. Chop off any trailing numbers or random single letters
+            clean_line = re.sub(r'\s*\b\d+\.*$', '', clean_line) # e.g. "13.3"
+            clean_line = re.sub(r'\s+[A-Z0-9]\s*$', '', clean_line) # e.g. " H M"
+            clean_line = re.sub(r'\s+[A-Z0-9]\.?$', '', clean_line) # e.g. " H."
+            
+            clean_line = clean_line.strip(' .-')
+            clean_line_lower = clean_line.lower()
+            
+            if any(banned in clean_line_lower for banned in banned_phrases):
+                continue
+                
+            action_verbs = ["explain", "describe", "analyze", "discuss", "compare", "design", "calculate", "write", "illustrate", "what is", "how does", "briefly", "list", "define", "apply", "build", "differentiate", "consider", "given"]
+            is_question = any(verb in clean_line_lower[:40] for verb in action_verbs)
+            
+            if is_question and 30 < len(clean_line) < 300:
+                if clean_line + "." not in all_questions:
+                    all_questions.append(clean_line + ".")
+
+        # Distribute across units
+        total_q = len(all_questions)
+        chunk_size = max(1, total_q // 3)
+        
+        u1_qs = all_questions[:chunk_size]
+        u2_qs = all_questions[chunk_size:chunk_size*2]
+        u3_qs = all_questions[chunk_size*2:]
+
+        units = {
+            "Unit 1": {"title": "Fundamentals", "questions": u1_qs},
+            "Unit 2": {"title": "Advanced Concepts", "questions": u2_qs},
+            "Unit 3": {"title": "Applications", "questions": u3_qs}
         }
 
-        print(f"[{self.name}] ✅ Lesson plan parsed.")
-        print(f"  -> Course: {structured_plan['course']}")
-        print(f"  -> Total Units: {structured_plan['total_units']}")
-        print(f"  -> Total Topics: {structured_plan['total_topics']}")
+        structured_plan = {
+            "course": course_title,
+            "course_code": course_code,
+            "units": units
+        }
+
+        print(f"[{self.name}] ✅ Parsed {course_title} ({course_code})")
+        print(f"  -> Extracted {total_q} REAL questions (ignored tables).")
         
         return structured_plan
-
-# --- TESTING THE AGENT ---
-if __name__ == "__main__":
-    agent = LessonPlanAgent()
-    plan = agent.read_lesson_plan("data/lesson_plans/Cloud_Computing_Lesson_Plan.txt")
-    
-    if plan:
-        print("\n--- EXTRACTED UNITS & TOPICS ---")
-        for unit_name, unit_data in plan["units"].items():
-            print(f"\n{unit_name}: {unit_data['title']}")
-            for topic in unit_data["topics"]:
-                print(f"  - {topic}")

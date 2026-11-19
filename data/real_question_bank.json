@@ -446,5 +446,29 @@
         "year": "2026",
         "batch": "Academic Year 2026",
         "question_text": "5.2026 Sree ss Ai\nbays ean Ur 73 mins\nNote: (i) Answer any two full questions, (ii) E SENET ae\na a N Mish A Cpe: S. (ii) Each full questi \u201ca\ni saeetien naan icstion carrics equal marks.\nCin eee ay OA\nTrace the DALL\u2019E 2 pipeline step by step for the input prompt; \u2018A red balloon a\nfloating over a snowy mountain\u2019,\n10\n10\n10\nO,Na\nOla\nExplain the mathematical formulation of the Forward and Reverse Processes in\nDiffusion Models, and analyze how the variance schedule parameter () influences\nr and generation quality.\ngation, denotsin\nnoise prope.\nHow do Joint Vision-Language Representations cnable models to fearn and align\nsemantic information between visual data and textual descriptions for multimodal\nnnderstanding tasks\u201d?\nrace the complete pipeline of a Large Language Model (LILM) for the mput\nsentence: \"AL is powerful.\u201d For each stage in the pipeline, state its name. describe\ni explain what it outputs before passing to the next stage.\nits function. an\nDitferentiate between Diffusion Models and Variational Autoencoders (VAESs)\non the following five dimensions:\n(i) Generation mechanism (step-by\n-step denoising vs single-step decoding),\n(ii) Latent space structure,\n(iii) Sample quality and diversity\nCompare\ntechnique\nmethodology and effectiv\nyv-Shot. and Chain-of-Thought prompting\nand analyze Zcro-Shot. Fev\nwith respect to their working\ns in Larte Language Models (LLMs)\neness."
+    },
+    {
+        "id": "Q_ISA1_01",
+        "subject": "Cloud Computing",
+        "exam_type": "ISA1",
+        "year": "2026",
+        "batch": "Academic Year 2026",
+        "question_text": "Explain the different cloud service models (IaaS, PaaS, SaaS) with real-world examples and compare their levels of control. (10marks)"
+    },
+    {
+        "id": "Q_ISA1_02",
+        "subject": "Cloud Computing",
+        "exam_type": "ISA1",
+        "year": "2026",
+        "batch": "Academic Year 2026",
+        "question_text": "A company wants to deploy multiple applications with different dependencies on the same Linux server. Discuss how containerization (Docker) provides strong isolation compared to traditional virtual machines. (10marks)"
+    },
+    {
+        "id": "Q_ISA1_03",
+        "subject": "Cloud Computing",
+        "exam_type": "ISA1",
+        "year": "2026",
+        "batch": "Academic Year 2026",
+        "question_text": "Analyze the role of Kubernetes in container orchestration. How does it address the challenges of scaling and managing microservices? (10marks)"
     }
 ]

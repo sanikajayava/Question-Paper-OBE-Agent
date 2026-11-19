@@ -3,7 +3,6 @@ import os
 import re
 
 class RetrievalTool:
-    """Tool for retrieving questions from the database."""
     def __init__(self, db_path="data/real_question_bank.json"):
         self.db_path = db_path
         self.data = self._load()
@@ -13,15 +12,28 @@ class RetrievalTool:
             return json.load(f)
     
     def _normalize_subject(self, text):
-        """Remove ALL non-alphanumeric characters and lowercase."""
         return re.sub(r'[^a-z0-9]', '', text.lower())
     
     def _normalize_batch(self, text):
-        """Remove ALL whitespace and uppercase."""
         return re.sub(r'\s+', '', text).upper()
     
+    def get_available_batch(self, subject, exam_type):
+        target_subj_norm = self._normalize_subject(subject)
+        target_exam_norm = exam_type.strip().upper()
+        
+        available_batches = set()
+        for q in self.data:
+            if self._normalize_subject(q["subject"]) == target_subj_norm:
+                if q["exam_type"].strip().upper() == target_exam_norm:
+                    available_batches.add(q["batch"])
+        
+        if not available_batches:
+            return None
+        
+        sorted_batches = sorted(list(available_batches), reverse=True)
+        return sorted_batches[0]
+
     def query(self, subject_name, exam_type, target_batch):
-        """Returns all questions matching the given criteria."""
         results = []
         target_subj_norm = self._normalize_subject(subject_name)
         target_exam_norm = exam_type.strip().upper()
@@ -38,10 +50,3 @@ class RetrievalTool:
             results.append(q)
         
         return results
-    
-    def get_stats(self):
-        stats = {}
-        for q in self.data:
-            subj = q["subject"]
-            stats[subj] = stats.get(subj, 0) + 1
-        return stats

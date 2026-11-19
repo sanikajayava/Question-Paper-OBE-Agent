@@ -1,10 +1,9 @@
 import re
 
 class AnalysisTool:
-    """Tool for analyzing question patterns."""
+    """Tool for analyzing question patterns and marks."""
     
     def analyze_bloom(self, questions):
-        """Estimates Bloom's level per question using action verbs."""
         bloom_verbs = {
             "L1_Remember": ["define", "list", "name", "what is", "identify"],
             "L2_Understand": ["explain", "describe", "discuss", "illustrate", "summarize"],
@@ -30,7 +29,6 @@ class AnalysisTool:
         return distribution
     
     def analyze_topics(self, questions, keywords):
-        """Counts how often each topic keyword appears."""
         counts = {}
         for q in questions:
             text = q["question_text"].lower()
@@ -38,3 +36,23 @@ class AnalysisTool:
                 if kw in text:
                     counts[kw] = counts.get(kw, 0) + 1
         return sorted(counts.items(), key=lambda x: -x[1])
+
+    def analyze_marks_pattern(self, questions):
+        """NEW: Analyzes past papers to find the average marks per question."""
+        marks_found = []
+        
+        # Regex to find patterns like "10 marks", "(08marks)", "07marks)", "5 Marks"
+        pattern = r'(\d{1,2})\s*(?:marks|Marks|MARKs)'
+        
+        for q in questions:
+            match = re.search(pattern, q["question_text"])
+            if match:
+                marks_found.append(int(match.group(1)))
+        
+        if not marks_found:
+            # Fallback if OCR failed to capture marks
+            return 10
+            
+        # Calculate the most common mark weight (mode) or average
+        average = sum(marks_found) / len(marks_found)
+        return int(round(average))

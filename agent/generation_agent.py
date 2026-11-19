@@ -7,58 +7,94 @@ from tools.generation_tool import GenerationTool
 class QuestionGenerationAgent:
     def __init__(self):
         self.name = "Question Generation Agent"
-        self.tool = GenerationTool()  # <-- AGENT USES TOOL
+        self.tool = GenerationTool()
 
-    def generate_paper(self, valid_questions, lesson_plan, analysis_report, total_marks=100):
-        print(f"\n[{self.name}] Using GenerationTool for {total_marks} marks...")
+    def generate_paper(self, valid_questions, lesson_plan, bloom_report, total_marks, marks_per_question, exam_type):
+        print(f"\n[{self.name}] Structuring {exam_type} paper for {total_marks} marks...")
         
-        marks_per_question = 10
-        questions_needed = total_marks // marks_per_question
-
-        # AGENT CALLS TOOL - clean + format
-        cleaned_questions = []
-        for q in valid_questions:
-            clean = self.tool.clean_text(q["question_text"])  # AGENT CALLS TOOL
-            if len(clean) > 50:
-                cleaned_questions.append({"id": q["id"], "text": clean})
-
-        selected = cleaned_questions[:questions_needed]
-        
-        print(f"  -> Available: {len(cleaned_questions)}, Needed: {questions_needed}, Selected: {len(selected)}")
-        if len(selected) < questions_needed:
-            print(f"  [!] WARNING: Database lacks enough questions for full {total_marks} marks.")
+        # Dynamic Marks Calculation
+        if exam_type == "ESA":
+            instructions = "Note: Answer Five Questions: Any two full questions from each Unit-I & Unit II and one full question from Unit III"
+            sub_marks = [10, 10] # 10+10 = 20 per Q. Student answers 5 Qs = 100 Marks.
+        else:
+            # For ISA, student answers 2 questions. So each question is total_marks / 2.
+            marks_per_full_q = total_marks // 2
+            instructions = f"Note: Answer any Two full questions. Each full question carries {marks_per_full_q} marks"
+            # Split the full marks into 'a' and 'b'
+            sub_marks = [(marks_per_full_q // 2) + (marks_per_full_q % 2), marks_per_full_q // 2]
 
         paper = {
             "subject": lesson_plan["course"],
+            "course_code": lesson_plan.get("course_code", "Auto"),
+            "exam_type": exam_type,
             "total_marks": total_marks,
-            "duration": "3 Hours",
-            "instructions": "Answer all questions. All questions carry equal marks.",
-            "analysis_summary": analysis_report["pattern_summary"],
+            "duration": "3 Hours" if exam_type == "ESA" else "2 Hours",
+            "instructions": instructions,
+            "analysis_summary": f"Dominant Bloom Level: {bloom_report['dominant_level']}",
             "sections": []
         }
 
-        units = list(lesson_plan["units"].keys())
-        num_units = len(units)
-        
-        for i, unit_name in enumerate(units):
-            section = {
-                "unit": unit_name,
-                "title": lesson_plan["units"][unit_name]["title"],
-                "questions": []
-            }
-            for j in range(i, len(selected), num_units):
-                if j < len(selected):
-                    q = selected[j]
-                    # AGENT CALLS TOOL - format_question
-                    formatted = self.tool.format_question(q["text"], marks_per_question)
-                    section["questions"].append({
-                        "question_number": f"{i+1}.{len(section['questions'])+1}",
-                        "text": q["text"],
-                        "formatted": formatted,
-                        "marks": marks_per_question,
-                        "source_id": q["id"]
-                    })
+        q_index = 0
+        used_qs = []
+
+        def get_next_q():
+            nonlocal q_index
+            if q_index < len(valid_questions):
+                q = valid_questions[q_index]
+                q_index += 1
+                used_qs.append(q)
+                return q
+            else:
+                if used_qs:
+                    q = used_qs[q_index % len(used_qs)]
+                    q_index += 1
+                    return q
+                return None
+
+        if exam_type == "ESA":
+            units = list(lesson_plan["units"].keys())
+            questions_per_unit = [3, 3, 2]
+            
+            for i, unit_name in enumerate(units[:3]): 
+                section = {"unit": unit_name, "title": lesson_plan["units"][unit_name]["title"], "questions": []}
+                
+                for q_num_idx in range(questions_per_unit[i]):
+                    full_q_num = sum(questions_per_unit[:i]) + q_num_idx + 1
+                    sub_parts = []
+                    
+                    for part_idx in range(2): 
+                        q = get_next_q()
+                        if q:
+                            sub_parts.append({
+                                "q_no": f"{full_q_num}{chr(97 + part_idx)}",
+                                "text": q["question_text"],
+                                "marks": sub_marks[part_idx],
+                                "source_id": q["id"]
+                            })
+                    
+                    if sub_parts:
+                        section["questions"].append({"main_q": str(full_q_num), "sub_questions": sub_parts})
+                paper["sections"].append(section)
+
+        else:
+            target_unit_name = list(lesson_plan["units"].keys())[0] if exam_type == "ISA1" else list(lesson_plan["units"].keys())[1]
+            section = {"unit": target_unit_name, "title": lesson_plan["units"][target_unit_name]["title"], "questions": []}
+            
+            for full_q_num in range(1, 4): 
+                sub_parts = []
+                for part_idx in range(2):
+                    q = get_next_q()
+                    if q:
+                        sub_parts.append({
+                            "q_no": f"{full_q_num}{chr(97 + part_idx)}",
+                            "text": q["question_text"],
+                            "marks": sub_marks[part_idx],
+                            "source_id": q["id"]
+                        })
+                
+                if sub_parts:
+                    section["questions"].append({"main_q": str(full_q_num), "sub_questions": sub_parts})
+            
             paper["sections"].append(section)
 
-        print(f"[{self.name}] Tool-based generation complete.")
         return paper

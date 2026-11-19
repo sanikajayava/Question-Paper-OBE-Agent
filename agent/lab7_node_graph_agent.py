@@ -8,17 +8,19 @@ class NodeGraphAgent:
     def _execute_node(self, node_name, input_data):
         """Simulates a node executing its specific task."""
         print(f"  [Node: {node_name}] Processing input...")
-        time.sleep(1) # Simulate processing time
+        time.sleep(1) 
         
-        # Logic for each node (Output of one becomes Input of next)
-        if node_name == "Requirements Node":
-            output = f"Analyzed '{input_data}'. Extracted: [Login, Dashboard, DB]"
+        if node_name == "Syllabus Node":
+            # This node takes the request and outputs the topics
+            output = f"Extracted Topics: [Docker, Kubernetes, Cloud Models]"
             
-        elif node_name == "Design Node":
-            output = f"Designed architecture for {input_data}. Output: [React, Python]"
+        elif node_name == "Question Selection Node":
+            # This node takes the topics and outputs the selected questions
+            output = f"Selected 3 questions matching the topics"
             
-        elif node_name == "Release Node":
-            output = f"Deployed {input_data} to Cloud. Status: SUCCESS"
+        elif node_name == "Formatting Node":
+            # This node takes the selected questions and formats them
+            output = f"Formatted paper with CO/PO tags and marks. Status: SUCCESS"
             
         else:
             output = "Unknown Node"
@@ -31,14 +33,17 @@ class NodeGraphAgent:
         print(f"\n[{self.name}] Starting Graph Execution...")
         print(f"Initial Request: {initial_request}")
         
-        # Graph Edges (Connections): Pass output of node 1 into node 2, etc.
-        step1 = self._execute_node("Requirements Node", initial_request)
-        step2 = self._execute_node("Design Node", step1)
-        step3 = self._execute_node("Release Node", step2)
+        # Graph Edges: Output of Node 1 becomes Input of Node 2
+        step1 = self._execute_node("Syllabus Node", initial_request)
+        
+        # We pass a simplified string so the log doesn't get messy
+        step2 = self._execute_node("Question Selection Node", "Extracted Topics") 
+        
+        step3 = self._execute_node("Formatting Node", "Selected Questions")
         
         print(f"\n✅ [{self.name}] Graph Execution Complete.")
         return step3
 
 if __name__ == "__main__":
     agent = NodeGraphAgent()
-    agent.run_graph("Build a new Campus App for students")
+    agent.run_graph("Generate an ISA1 paper for Cloud Computing")
