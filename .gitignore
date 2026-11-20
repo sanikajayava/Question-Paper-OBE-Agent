@@ -3,3 +3,11 @@ __pycache__/
 *.db
 .env
 output/
+# Nested clones / accidental embedded repos
+Question-Paper-OBE-Agent/
+Question-Paper-OBE-Agent.bak/
+
+# Python virtual environments
+.venv/
+venv/
+
