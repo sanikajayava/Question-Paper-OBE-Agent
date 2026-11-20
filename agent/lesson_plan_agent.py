@@ -41,45 +41,33 @@ class LessonPlanAgent:
 
         all_questions = []
         text = re.sub(r'\s+', ' ', content)
-        
-        # 1. First split by lines starting with numbers
         parts = re.split(r'(?=\b\d+[\.\)]\s)', text)
         
-        banned_phrases = [
-            "describe the fundamental", "analyze deep learning", 
-            "apply deep learning", "build various deep", "course outcomes",
-            "at the end of the course"
-        ]
+        banned_phrases = ["course outcomes", "at the end of the course", "describe the fundamental", "analyze deep learning"]
         
         for part in parts:
-            part = part.strip()
-            
-            # 2. SECONDARY SPLIT: Force a split if we see things like " 4.Explain" or " 5.Understand"
-            # This breaks apart the concatenated questions
             sub_parts = re.split(r'(?=\s+\d+[\.\)]\s*[A-Z])', part)
             
             for sub_part in sub_parts:
-                clean_line = re.sub(r'^\d+[\.\)]\s+', '', sub_part.strip())
+                # 1. Strip leading numbers like "2." or "2) "
+                clean_line = re.sub(r'^\d+[\.\)]\s*', '', sub_part.strip())
+                # 2. Strip leading numbers directly attached to words like "2.Apply"
+                clean_line = re.sub(r'^\d+[\.\)]', '', clean_line).strip()
                 
-                # Strip table columns
-                clean_line = re.split(r'\s+(?:L\d|H\s*[HM]|M\s*[HL]|CO\d|TLO\d|PI|Code|\d+%|✓|\b\d+\.\d+\.\d+\b)', clean_line, flags=re.IGNORECASE)[0]
-                clean_line = re.sub(r'\s*\b\d+\.*$', '', clean_line)
-                clean_line = re.sub(r'\s+[A-Z0-9]\.?$', '', clean_line)
-                clean_line = clean_line.strip(' .-')
-                clean_line_lower = clean_line.lower()
+                # 3. Chop off table data at the end
+                clean_line = re.split(r'\s+(?:L\d|H\s*[HM]|M\s*[HL]|CO\d|TLO\d|PI|Code|\d+%|✓|\b\d+\.\d+\.\d+\b|\b[A-Z]\b|\b\d+\.\b)', clean_line, flags=re.IGNORECASE)[0]
+                clean_line = re.sub(r'\s*\b\d+\.*$', '', clean_line).strip(' .-')
                 
-                if any(banned in clean_line_lower for banned in banned_phrases):
+                if any(banned in clean_line.lower() for banned in banned_phrases):
                     continue
                     
-                action_verbs = ["explain", "describe", "analyze", "discuss", "compare", "design", "calculate", "write", "illustrate", "what is", "how does", "briefly", "list", "define", "apply", "build", "differentiate", "consider", "given", "understand"]
-                is_question = any(verb in clean_line_lower[:40] for verb in action_verbs)
+                action_verbs = ["explain", "describe", "analyze", "discuss", "compare", "design", "calculate", "write", "illustrate", "what is", "how does", "briefly", "list", "define", "apply", "build", "differentiate", "consider", "given"]
+                is_question = any(verb in clean_line.lower()[:40] for verb in action_verbs)
                 
-                # Ensure it is a valid, standalone question (between 30 and 200 chars)
                 if is_question and 30 < len(clean_line) < 200:
                     if clean_line + "." not in all_questions:
                         all_questions.append(clean_line + ".")
 
-        # Distribute across units
         total_q = len(all_questions)
         chunk_size = max(1, total_q // 3)
         
@@ -93,13 +81,6 @@ class LessonPlanAgent:
             "Unit 3": {"title": "Applications", "questions": u3_qs}
         }
 
-        structured_plan = {
-            "course": course_title,
-            "course_code": course_code,
-            "units": units
-        }
-
-        print(f"[{self.name}] ✅ Parsed {course_title} ({course_code})")
-        print(f"  -> Extracted {total_q} REAL questions (separated correctly).")
+        print(f"[{self.name}] ✅ Extracted {total_q} UNIQUE questions.")
         
-        return structured_plan
+        return {"course": course_title, "course_code": course_code, "units": units}

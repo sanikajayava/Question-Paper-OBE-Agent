@@ -5,23 +5,23 @@ class DeepResearchAgent:
         self.name = "Lab 9: Deep Research Agent"
 
     def search(self, topic):
-        print(f"  [Loop 1: Search] Searching databases for '{topic}'...")
-        time.sleep(0.5)
-        return ["Source A: GenAI is growing fast.", "Source B: GenAI has ethical risks."]
+        print(f"  [Loop 1: Search] Searching databases for '{topic}' syllabus topics...")
+        time.sleep(1)
+        return [f"Source A: {topic} Unit 1 concepts", f"Source B: {topic} Unit 2 advanced topics"]
 
     def extract(self, sources):
-        print(f"  [Loop 2: Extract] Extracting facts from {len(sources)} sources...")
-        time.sleep(0.5)
-        return ["Fact 1: High growth rate.", "Fact 2: Ethical concerns exist."]
+        print(f"  [Loop 2: Extract] Extracting key facts from {len(sources)} sources...")
+        time.sleep(1)
+        return ["Fact 1: Requires 15 marks weightage.", "Fact 2: Bloom's Level L3 required."]
 
     def compare(self, facts):
-        print(f"  [Loop 3: Compare] Checking for contradictions...")
-        time.sleep(0.5)
-        return "No contradictions found."
+        print(f"  [Loop 3: Compare] Checking for syllabus contradictions...")
+        time.sleep(1)
+        return "No contradictions found. Aligned with KLE Tech 2026 syllabus."
 
     def synthesize(self, facts, comparison):
-        print(f"  [Loop 4: Synthesize] Generating briefing...")
-        time.sleep(0.5)
+        print(f"  [Loop 4: Synthesize] Generating research briefing...")
+        time.sleep(1)
         return f"BRIEFING REPORT:\n  - {facts[0]}\n  - {facts[1]}\n  - Status: {comparison}"
 
     def run(self, topic):
@@ -34,4 +34,4 @@ class DeepResearchAgent:
 
 if __name__ == "__main__":
     agent = DeepResearchAgent()
-    agent.run("Generative AI in Education")
+    agent.run("Cloud Computing ISA1")
