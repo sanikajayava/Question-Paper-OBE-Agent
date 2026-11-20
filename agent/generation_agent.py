@@ -9,18 +9,21 @@ class QuestionGenerationAgent:
         self.name = "Question Generation Agent"
         self.tool = GenerationTool()
 
-    def generate_paper(self, valid_questions, lesson_plan, bloom_report, total_marks, marks_per_question, exam_type):
-        print(f"\n[{self.name}] Structuring {exam_type} paper for {total_marks} marks...")
+    def generate_paper(self, valid_questions, lesson_plan, bloom_report, total_marks, marks_per_question, exam_type, set_name=""):
         
-        # Dynamic Marks Calculation
+        # --- SET OFFSET LOGIC ---
+        # If Set B, skip the first 10 questions. If Set C, skip the first 20.
+        offset = 0
+        if set_name == "Set_B": offset = 10
+        elif set_name == "Set_C": offset = 20
+
+        # Calculate marks
         if exam_type == "ESA":
             instructions = "Note: Answer Five Questions: Any two full questions from each Unit-I & Unit II and one full question from Unit III"
-            sub_marks = [10, 10] # 10+10 = 20 per Q. Student answers 5 Qs = 100 Marks.
+            sub_marks = [10, 10] 
         else:
-            # For ISA, student answers 2 questions. So each question is total_marks / 2.
             marks_per_full_q = total_marks // 2
             instructions = f"Note: Answer any Two full questions. Each full question carries {marks_per_full_q} marks"
-            # Split the full marks into 'a' and 'b'
             sub_marks = [(marks_per_full_q // 2) + (marks_per_full_q % 2), marks_per_full_q // 2]
 
         paper = {
@@ -34,7 +37,8 @@ class QuestionGenerationAgent:
             "sections": []
         }
 
-        q_index = 0
+        # We modify the index to start from the offset
+        q_index = offset 
         used_qs = []
 
         def get_next_q():
@@ -45,11 +49,11 @@ class QuestionGenerationAgent:
                 used_qs.append(q)
                 return q
             else:
-                if used_qs:
-                    q = used_qs[q_index % len(used_qs)]
-                    q_index += 1
-                    return q
-                return None
+                # Loop back to the start if we hit the end
+                q_index = 0 
+                q = valid_questions[q_index]
+                q_index += 1
+                return q
 
         if exam_type == "ESA":
             units = list(lesson_plan["units"].keys())

@@ -25,22 +25,19 @@ class QuestionPaperCoordinator:
         self.copo_tool = COPOTool()
         self.pdf_tool = PDFGeneratorTool()
 
-    def run_workflow(self, subject, exam_type, target_batch, lesson_plan_path, total_marks=100):
+    def run_workflow(self, subject, exam_type, target_batch, lesson_plan_path, total_marks=100, set_name=""):
         print(f"\n{'='*60}")
         print(f"  {self.name.upper()}")
-        print(f"  Goal: Generate a {exam_type} paper for {subject}")
-        print(f"  Total Marks: {total_marks}")
+        print(f"  Goal: Generate {set_name} paper for {subject} ({exam_type})")
         print(f"{'='*60}")
 
-        # 1. Read Lesson Plan and Extract Questions per Unit
+        # 1. Read Lesson Plan
         lesson_plan = self.lp_agent.read_lesson_plan(lesson_plan_path)
-        if not lesson_plan: 
-            return
+        if not lesson_plan: return
 
-        # 2. Retrieve Questions (Filtered by Unit based on Exam Type)
+        # 2. Retrieve Questions
         retrieved = self.retrieval_agent.retrieve_questions(subject, exam_type, target_batch, lesson_plan)
-        if not retrieved: 
-            return
+        if not retrieved: return
 
         # 3. Analyze
         analysis = self.analysis_agent.analyze(retrieved)
@@ -49,6 +46,7 @@ class QuestionPaperCoordinator:
         # 4. Validate
         valid_qs, _ = self.validation_agent.validate_questions(retrieved, subject)
         if not valid_qs: 
+            print(f"[Coordinator] ERROR: No valid questions found. Aborting.")
             return
 
         # 5. CO/PO Map
@@ -56,13 +54,13 @@ class QuestionPaperCoordinator:
         copo_report = self.copo_tool.map_paper(valid_qs)
         copo_by_id = {item["id"]: item for item in copo_report["questions"]}
 
-        # 6. Generate Final Paper
+        # 6. Generate Final Paper (Pass set_name to shift questions)
         marks_per_question = analysis.get("marks_per_question", 10)
         final_paper = self.generation_agent.generate_paper(
-            valid_qs, lesson_plan, bloom_report, total_marks, marks_per_question, exam_type
+            valid_qs, lesson_plan, bloom_report, total_marks, marks_per_question, exam_type, set_name
         )
 
-        # Attach CO/PO to sub-questions
+        # Attach CO/PO
         for section in final_paper["sections"]:
             for main_q in section["questions"]:
                 for q in main_q["sub_questions"]:
@@ -78,45 +76,25 @@ class QuestionPaperCoordinator:
         final_paper["exam_type"] = exam_type
         final_paper["course_code"] = lesson_plan.get("course_code", "Auto")
 
-        # 7. Print Final Output
-        print("\n" + "="*60)
-        print("  FINAL QUESTION PAPER")
-        print("="*60)
-        print(f"Subject: {final_paper['subject']} | Marks: {final_paper['total_marks']} | Duration: {final_paper['duration']}")
-        print(f"Instructions: {final_paper['instructions']}\n")
-
-        for section in final_paper["sections"]:
-            print(f"--- {section['unit']}: {section['title']} ---")
-            if not section["questions"]:
-                print("  (No questions available for this unit)")
-            for main_q in section["questions"]:
-                print(f"  Q{main_q['main_q']})")
-                for q in main_q["sub_questions"]:
-                    print(f"    {q['q_no']}) [{q['marks']} Marks] [{q['CO']}] [{q['PO']}] {q['text'][:120]}...")
-            print()
-
-        # 8. Save JSON & PDF
+        # 7. Save JSON & PDF
         output_dir = "output"
         os.makedirs(output_dir, exist_ok=True)
         
-        output_filename = f"{subject.replace(' ', '_')}_{exam_type}_Paper.json"
+        set_suffix = f"_{set_name}" if set_name else ""
+        output_filename = f"{subject.replace(' ', '_')}_{exam_type}{set_suffix}_Paper.json"
         output_path = os.path.join(output_dir, output_filename)
         
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(final_paper, f, indent=4)
             
-        print(f"[Coordinator] 📁 Final paper JSON saved to: {output_path}")
-        
-        pdf_filename = f"output/{subject.replace(' ', '_')}_{exam_type}_Paper.pdf"
+        pdf_filename = f"output/{subject.replace(' ', '_')}_{exam_type}{set_suffix}_Paper.pdf"
         self.pdf_tool.generate(final_paper, pdf_filename)
 
-        print("\n[Coordinator] ✅ WORKFLOW COMPLETED SUCCESSFULLY.")
+        print(f"[Coordinator] ✅ {set_name} WORKFLOW COMPLETED. Check output folder.")
 
 # --- RUNNING THE FULL SYSTEM (If executed directly) ---
 if __name__ == "__main__":
     coordinator = QuestionPaperCoordinator()
-    
-    # Example run (can also be triggered via run_faculty_upload.py)
     coordinator.run_workflow(
         subject="Deep Learning",
         exam_type="ESA",
