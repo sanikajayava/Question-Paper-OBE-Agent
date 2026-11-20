@@ -1,4 +1,4 @@
-"""
+﻿"""
 QUESTION PAPER OBE AGENT - MASTER DEMONSTRATION
 =============================================
 Team 6 | Agentic AI Labs 1-10
@@ -33,7 +33,7 @@ def main():
     show_header("PART 1: LAB 1-6 - SKILLS, TOOLS, MEMORY, AUDIT LOGS")
     runtime = OpenClawRuntime()
     result = runtime.execute("Generate a 50-mark blueprint for Agentic AI.")
-    print(f"✅ Lab 1-6 Status: {result['status']} (Audit events: {len(result['audit_log'])})")
+    print(f"âœ… Lab 1-6 Status: {result['status']} (Audit events: {len(result['audit_log'])})")
 
     # PART 2
     show_header("PART 2: LAB 6/14 - QUESTION PAPER MULTI-AGENT SYSTEM")
@@ -42,10 +42,10 @@ def main():
         runtime.execute_multi_agent(
             subject="Cloud Computing", exam_type="ESA",
             target_batch="Oct 2025 - Feb 2026",
-            lesson_plan_path="data/lesson_plans/Cloud_Computing_Lesson_Plan.txt"
+            lesson_plan_path="data/lesson_plans/Cloud_Computing_LP.txt"
         )
     except Exception as e:
-        print(f"❌ ERROR: {e}")
+        print(f"âŒ ERROR: {e}")
 
     # PART 3
     show_header("PART 3: LAB 7 - AGENTIC NODE GRAPH")
@@ -53,7 +53,7 @@ def main():
 
     # PART 4
     show_header("PART 4: LAB 8 - PARALLEL SWARM")
-    ParallelSwarmAgent().run_swarm("Organize a 24-hour college Hackathon")
+    ParallelSwarmAgent().run_swarm()
 
     # PART 5
     show_header("PART 5: LAB 9 - DEEP RESEARCH AGENT")
@@ -64,16 +64,16 @@ def main():
     CloudOpsAgent().run()
 
     # SUMMARY
-    show_header("🎉 FULL LAB 1-10 DEMONSTRATION COMPLETE 🎉")
+    show_header("ðŸŽ‰ FULL LAB 1-10 DEMONSTRATION COMPLETE ðŸŽ‰")
     print("""
-✅ Lab 1-6: Foundations & Memory
-✅ Lab 6/14: Question Paper Capstone
-✅ Lab 7: Node Graph
-✅ Lab 8: Parallel Swarm
-✅ Lab 9: Deep Research Loop
-✅ Lab 10: Cloud Operations
+âœ… Lab 1-6: Foundations & Memory
+âœ… Lab 6/14: Question Paper Capstone
+âœ… Lab 7: Node Graph
+âœ… Lab 8: Parallel Swarm
+âœ… Lab 9: Deep Research Loop
+âœ… Lab 10: Cloud Operations
 
-📁 Check the output/ folder for generated JSON papers.
+ðŸ“ Check the output/ folder for generated JSON papers.
     """)
 
 if __name__ == "__main__":
