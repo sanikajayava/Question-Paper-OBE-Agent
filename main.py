@@ -42,7 +42,7 @@ def main():
         runtime.execute_multi_agent(
             subject="Cloud Computing", exam_type="ESA",
             target_batch="Oct 2025 - Feb 2026",
-            lesson_plan_path="data/lesson_plans/Cloud_Computing_LP.txt"
+            lesson_plan_path="data/lesson_plans/Cloud_Computing_LP.pdf"
         )
     except Exception as e:
         print(f"âŒ ERROR: {e}")

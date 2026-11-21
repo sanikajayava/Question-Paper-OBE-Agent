@@ -1,127 +1,174 @@
+
 import time
 import threading
 import os
-import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from agent.coordinator import QuestionPaperCoordinator
+
 
 class ParallelSwarmAgent:
     def __init__(self):
         self.name = "Lab 8: Parallel Swarm"
-        self.lock = threading.Lock() 
         self.results = []
+        self.lock = threading.Lock()
 
-    def _generate_paper_thread(self, subject, exam_type, target_batch, lesson_plan_path, total_marks, set_name):
-        """Worker function running in a separate thread."""
-        print(f"\n  [Thread Started] Generating {set_name} for {subject}...")
-        
-        coordinator = QuestionPaperCoordinator()
+    def _generate_paper_thread(
+        self,
+        subject,
+        exam_type,
+        target_batch,
+        lesson_plan_path,
+        total_marks,
+        set_name
+    ):
+        """Generate one question paper independently."""
+
+        print(f"\n[Thread Started] Generating {set_name} for {subject}")
+
         start_time = time.time()
-        
+
         try:
-            # We pass a special flag 'set_name' to the coordinator to change the output filename
-            # But we keep the 'subject' pure so validation passes.
-            coordinator.run_workflow(
+            coordinator = QuestionPaperCoordinator()
+
+            paper = coordinator.run_workflow(
                 subject=subject,
                 exam_type=exam_type,
                 target_batch=target_batch,
                 lesson_plan_path=lesson_plan_path,
                 total_marks=total_marks,
-                set_name=set_name  # <--- Passing set name here
+                set_name=set_name,
+                generate_valuation=False
             )
-            
-            end_time = time.time()
-            time_taken = round(end_time - start_time, 2)
-            
-            with self.lock:
-                self.results.append(f"✅ {set_name} generated successfully in {time_taken}s")
-                
+
+            output_dir = "output"
+            subject_name = subject.replace(" ", "_")
+            suffix = f"_{set_name}"
+
+            json_path = os.path.join(
+                output_dir,
+                f"{subject_name}_{exam_type}{suffix}_Paper.json"
+            )
+
+            pdf_path = os.path.join(
+                output_dir,
+                f"{subject_name}_{exam_type}{suffix}_Paper.pdf"
+            )
+
+            result = {
+                "set_name": set_name,
+                "status": "success",
+                "paper": paper,
+                "json_path": json_path,
+                "pdf_path": pdf_path,
+                "time_taken": round(time.time() - start_time, 2),
+                "error": None
+            }
+
+            print(f"[Completed] {set_name}: {pdf_path}")
+
         except Exception as e:
-            with self.lock:
-                self.results.append(f"❌ {set_name} failed: {e}")
 
-    def run_swarm(self):
-        print("\n" + "="*60)
-        print("  🐝 LAB 8: PARALLEL SWARM GENERATOR")
-        print("="*60)
-        
-        # --- 1. Display Available Lesson Plans ---
-        print("\nAvailable Lesson Plans:")
-        lp_dir = "data/lesson_plans"
-        available_subjects = []
-        if os.path.exists(lp_dir):
-            for f in os.listdir(lp_dir):
-                if f.endswith(".pdf") or f.endswith(".txt"):
-                    subj = f.replace("_LP.pdf", "").replace("_LP.txt", "").replace("_", " ")
-                    available_subjects.append(subj)
-                    print(f"  - {subj}")
-        
-        # --- 2. Ask for Subject ---
-        subject = input("\n👉 Enter Subject (exactly as shown above): ").strip()
-        lesson_plan_path = f"data/lesson_plans/{subject.replace(' ', '_')}_LP.pdf"
-        
-        if not os.path.exists(lesson_plan_path):
-            # Try txt fallback
-            lesson_plan_path = f"data/lesson_plans/{subject.replace(' ', '_')}_LP.txt"
-            if not os.path.exists(lesson_plan_path):
-                print(f"❌ Error: Lesson plan not found for {subject}")
-                return
+            result = {
+                "set_name": set_name,
+                "status": "failed",
+                "paper": None,
+                "json_path": None,
+                "pdf_path": None,
+                "time_taken": round(time.time() - start_time, 2),
+                "error": str(e)
+            }
 
-        # --- 3. Ask for Exam Type ---
-        print("\n  1. ISA1\n  2. ISA2\n  3. ESA")
-        exam_choice = input("👉 Select Exam Type (1/2/3): ").strip()
-        
-        if exam_choice == "1": 
-            exam_type = "ISA1"
-            target_batch = "Academic Year 2026"
-        elif exam_choice == "2": 
-            exam_type = "ISA2"
-            target_batch = "Academic Year 2026"
-        else: 
-            exam_type = "ESA"
-            target_batch = "Oct 2025 - Feb 2026"
-        
-        # --- 4. Ask for Marks ---
-        total_marks = int(input(f"👉 Enter Total Marks for {exam_type}: "))
+            print(f"[Failed] {set_name}: {e}")
 
-        # --- 5. Ask for Number of Sets (Max 3) ---
-        num_sets = int(input("👉 How many question papers to generate simultaneously? (1/2/3): "))
-        if num_sets > 3:
-            print("⚠️ Maximum 3 sets allowed to prevent memory overload. Generating 3.")
-            num_sets = 3
+        with self.lock:
+            self.results.append(result)
 
-        # --- 6. Launch Swarm ---
-        print(f"\n[{self.name}] 🚀 Launching Swarm to generate {num_sets} parallel papers...")
-        
+        return result
+
+    def run_swarm(
+        self,
+        subject,
+        exam_type,
+        target_batch,
+        lesson_plan_path,
+        total_marks,
+        num_sets=1
+    ):
+        """Generate 1, 2, or 3 papers using parallel threads."""
+
+        if not isinstance(num_sets, int) or isinstance(num_sets, bool):
+            raise ValueError("Number of papers must be an integer.")
+
+        if num_sets < 1 or num_sets > 3:
+            raise ValueError("You can generate between 1 and 3 papers.")
+
+        self.results = []
+
+        set_names = [
+            f"Set_{chr(65 + i)}"
+            for i in range(num_sets)
+        ]
+
+        print(
+            f"\n[{self.name}] Starting parallel generation "
+            f"for {num_sets} paper(s)."
+        )
+
         start_time = time.time()
-        threads = []
 
-        for i in range(num_sets):
-            set_name = f"Set_{chr(65+i)}" # Set_A, Set_B, Set_C
-            thread = threading.Thread(
-                target=self._generate_paper_thread, 
-                args=(subject, exam_type, target_batch, lesson_plan_path, total_marks, set_name)
+        with ThreadPoolExecutor(max_workers=num_sets) as executor:
+
+            futures = [
+                executor.submit(
+                    self._generate_paper_thread,
+                    subject,
+                    exam_type,
+                    target_batch,
+                    lesson_plan_path,
+                    total_marks,
+                    set_name
+                )
+                for set_name in set_names
+            ]
+
+            for future in as_completed(futures):
+                future.result()
+
+        self.results.sort(
+            key=lambda item: item["set_name"]
+        )
+
+        print("\n" + "=" * 55)
+        print("PARALLEL GENERATION SUMMARY")
+        print("=" * 55)
+
+        for result in self.results:
+            print(
+                f"{result['set_name']}: {result['status']}"
             )
-            threads.append(thread)
-            thread.start()
 
-        # Wait for all threads to finish
-        for thread in threads:
-            thread.join()
+        print(
+            f"Total time: {round(time.time() - start_time, 2)} seconds"
+        )
 
-        end_time = time.time()
-        total_time = round(end_time - start_time, 2)
+        return self.results
 
-        # --- 7. Print Summary ---
-        print("\n" + "="*60)
-        print("  🐝 SWARM EXECUTION SUMMARY")
-        print("="*60)
-        for res in self.results:
-            print(f"  {res}")
-        print(f"\n⏱️ Total Time Taken: {total_time} seconds.")
-        print(f"📁 Check the 'output/' folder for the generated PDFs!")
 
 if __name__ == "__main__":
+
     agent = ParallelSwarmAgent()
-    agent.run_swarm()
+
+    results = agent.run_swarm(
+        subject="Cloud Computing",
+        exam_type="ESA",
+        target_batch="2027",
+        lesson_plan_path="data/lesson_plans/Cloud_Computing_LP.pdf",
+        total_marks=60,
+        num_sets=2
+    )
+
+    print("\nGenerated papers:")
+    for result in results:
+        if result["status"] == "success":
+            print(result["pdf_path"])
