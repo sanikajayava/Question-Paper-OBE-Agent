@@ -12,178 +12,242 @@ from auth import (
 )
 
 
+
 def render_login():
 
     initialize_database()
 
     st.markdown("""
     <style>
-    .login-background {
-        max-width: 1050px;
-        margin: 35px auto 10px auto;
-        border-radius: 25px;
-        overflow: hidden;
-        box-shadow: 0 18px 45px rgba(38, 54, 120, 0.15);
-        border: 1px solid #e0e7ff;
+    @keyframes login-fade-up {
+        from {
+            opacity: 0;
+            transform: translateY(18px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes login-gradient-drift {
+        0%, 100% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+    }
+
+    @keyframes login-icon-float {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-7px);
+        }
     }
 
     .login-left {
-        background: linear-gradient(
-            145deg,
-            #111c3b,
-            #334b91,
-            #7956c8
-        );
-        padding: 55px 35px;
+        background: linear-gradient(145deg, #102A43, #155E75, #0F766E);
+        background-size: 180% 180%;
+        padding: 45px 35px;
+        border-radius: 20px;
         color: white;
-        min-height: 440px;
+        min-height: 490px;
+        box-shadow: 0 12px 35px rgba(16, 42, 67, 0.15);
+        animation:
+            login-fade-up 650ms ease-out both,
+            login-gradient-drift 18s ease-in-out infinite;
+        transition: transform 220ms ease, box-shadow 220ms ease;
+    }
+
+    .login-left:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 18px 42px rgba(16, 42, 67, 0.2);
     }
 
     .login-left h1 {
         color: white !important;
         font-size: 34px;
-        line-height: 1.25;
+        line-height: 1.3;
+        margin-top: 15px;
     }
 
     .login-left p {
-        color: #e0e8ff;
+        color: #E0F2F1 !important;
         line-height: 1.8;
+        font-size: 15px;
     }
 
     .login-icon {
-        font-size: 65px;
-        margin-bottom: 18px;
+        font-size: 58px;
+        margin-bottom: 15px;
+        animation: login-icon-float 3s ease-in-out infinite;
     }
 
     .login-right {
         background: white;
-        padding: 35px;
-        min-height: 440px;
+        padding: 25px 22px;
+        border-radius: 20px;
+        border: 1px solid #E2E8F0;
+        box-shadow: 0 12px 35px rgba(16, 42, 67, 0.08);
+        animation: login-fade-up 650ms 100ms ease-out both;
     }
 
     .login-right h2 {
-        color: #253b73 !important;
+        color: #102A43 !important;
+        font-size: 28px;
     }
 
     .login-caption {
-        color: #64748b;
+        color: #64748B;
         font-size: 14px;
-        margin-bottom: 25px;
+        margin-bottom: 20px;
     }
 
-    [data-testid="stForm"] {
-        background: #f8faff;
-        border: 1px solid #e0e7ff;
-        border-radius: 15px;
-        padding: 22px;
+    div[data-testid="stForm"] {
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 14px;
+        padding: 18px;
+        animation: login-fade-up 650ms 180ms ease-out both;
+    }
+
+    div[data-testid="stFormSubmitButton"] button {
+        background: #0F766E;
+        color: white;
+        border: none;
+        border-radius: 9px;
+        min-height: 45px;
+        font-weight: 600;
+        transition: transform 180ms ease, box-shadow 180ms ease,
+            background-color 180ms ease;
+    }
+
+    div[data-testid="stFormSubmitButton"] button:hover {
+        background: #115E59;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 14px rgba(15, 118, 110, 0.22);
+    }
+
+    @media (max-width: 700px) {
+        .login-left, .login-right {
+            min-height: auto;
+            padding: 25px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .login-left,
+        .login-right,
+        .login-icon,
+        div[data-testid="stForm"] {
+            animation: none !important;
+            transition: none !important;
+        }
     }
     </style>
     """, unsafe_allow_html=True)
 
-    st.markdown("""
-    <div class="login-background">
-        <div style="
-            display:grid;
-            grid-template-columns: 1fr 1fr;
-        ">
-            <div class="login-left">
-                <div class="login-icon">🎓</div>
-                <h1>Question Paper<br>OBE Agent</h1>
-                <p>
-                    An intelligent academic assessment workspace
-                    powered by Agentic AI.
-                </p>
-                <hr style="border-color:rgba(255,255,255,0.25);">
-                <p>✦ Intelligent question paper generation</p>
-                <p>✦ Outcome-Based Education mapping</p>
-                <p>✦ Academic analysis and reporting</p>
-                <p>✦ Secure faculty access</p>
-            </div>
-            <div class="login-right">
-                <h2>Welcome Back!</h2>
-                <p class="login-caption">
-                    Sign in to access your academic workspace.
-                </p>
-            </div>
+    # Main two-column login layout
+    left_col, right_col = st.columns([1.15, 0.85], gap="large")
+
+    with left_col:
+
+        st.html("""
+        <div class="login-left">
+            <div class="login-icon">🎓</div>
+            <h1>Question Paper<br>OBE Agent</h1>
+            <p>
+                An intelligent academic assessment workspace
+                powered by Agentic AI.
+            </p>
+            <hr style="border-color:rgba(255,255,255,0.3);">
+            <p>✦ Intelligent question paper generation</p>
+            <p>✦ Outcome-Based Education mapping</p>
+            <p>✦ Academic analysis and reporting</p>
+            <p>✦ Secure faculty access</p>
+            <br>
+            <p style="font-size:13px; opacity:0.8;">
+                KLE Technological University
+            </p>
         </div>
-    </div>
-    """, unsafe_allow_html=True)
+        """)
 
-    # Login form is placed below the welcome panel.
-    # This keeps all Streamlit inputs functional.
+    with right_col:
 
-    login_type = st.radio(
-        "Select account type",
-        ["Faculty", "Administrator"],
-        horizontal=True
-    )
+        st.html("""
+        <div class="login-right">
+            <h2>Welcome Back!</h2>
+            <p class="login-caption">
+                Sign in to access your academic workspace.
+            </p>
+        </div>
+        """)
 
-    with st.form("login_form"):
-
-        user_id = st.text_input(
-            "Faculty ID" if login_type == "Faculty" else "Admin ID",
-            placeholder="Enter your ID"
+        login_type = st.radio(
+            "Select account type",
+            ["Faculty", "Administrator"],
+            horizontal=True,
+            key="login_account_type"
         )
 
-        password = st.text_input(
-            "Password",
-            type="password",
-            placeholder="Enter your password"
-        )
+        with st.form("login_form"):
 
-        submitted = st.form_submit_button(
-            "Sign In →",
-            use_container_width=True
-        )
-
-    if submitted:
-
-        if not user_id.strip() or not password:
-            st.error("Please enter both ID and password.")
-            return
-
-        if login_type == "Administrator":
-
-            valid = verify_admin(
-                user_id.strip(),
-                password
+            user_id = st.text_input(
+                "Faculty ID" if login_type == "Faculty" else "Admin ID",
+                placeholder="Enter your ID"
             )
 
-            if valid:
-
-                st.session_state.authenticated = True
-                st.session_state.user_role = "admin"
-                st.session_state.user_id = user_id.strip()
-                st.session_state.user_name = "Administrator"
-                st.session_state.active_page = "Home"
-                st.session_state.navigation_page = "Choose a page"
-
-                st.rerun()
-
-            else:
-                st.error("Invalid administrator ID or password.")
-
-        else:
-
-            faculty = verify_faculty(
-                user_id.strip(),
-                password
+            password = st.text_input(
+                "Password",
+                type="password",
+                placeholder="Enter your password"
             )
 
-            if faculty:
+            submitted = st.form_submit_button(
+                "Sign In →",
+                use_container_width=True
+            )
 
-                st.session_state.authenticated = True
-                st.session_state.user_role = "faculty"
-                st.session_state.user_id = faculty["faculty_id"]
-                st.session_state.user_name = faculty["faculty_name"]
-                st.session_state.active_page = "Home"
-                st.session_state.navigation_page = "Choose a page"
+        if submitted:
 
-                st.rerun()
+            if not user_id.strip() or not password:
+                st.error("Please enter both ID and password.")
+
+            elif login_type == "Administrator":
+
+                valid = verify_admin(user_id.strip(), password)
+
+                if valid:
+                    st.session_state.authenticated = True
+                    st.session_state.user_role = "admin"
+                    st.session_state.user_id = user_id.strip()
+                    st.session_state.user_name = "Administrator"
+                    st.session_state.active_page = "Home"
+                    st.session_state.navigation_page = "Choose a page"
+                    st.rerun()
+
+                else:
+                    st.error("Invalid administrator ID or password.")
 
             else:
-                st.error("Invalid Faculty ID or password.")
 
+                faculty = verify_faculty(user_id.strip(), password)
+
+                if faculty:
+                    st.session_state.authenticated = True
+                    st.session_state.user_role = "faculty"
+                    st.session_state.user_id = faculty["faculty_id"]
+                    st.session_state.user_name = faculty["faculty_name"]
+                    st.session_state.active_page = "Home"
+                    st.session_state.navigation_page = "Choose a page"
+                    st.rerun()
+
+                else:
+                    st.error("Invalid Faculty ID or password.")
 
 def render_admin_panel():
 

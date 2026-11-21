@@ -43,8 +43,9 @@ OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 # 2. PAGE DEFINITIONS
 # ==========================================================
 
+
 AVAILABLE_PAGES = [
-    "Generate Question Paper",
+    "Configure Examination",
     "Generate Scheme of Valuation",
     "Coverage & Quality Report",
     "Previous Question Papers",
@@ -53,15 +54,19 @@ AVAILABLE_PAGES = [
 ]
 
 
+
 # ==========================================================
 # 3. SESSION STATE
 # ==========================================================
 
+
 DEFAULT_STATE = {
     "authenticated": False,
     "active_page": "Home",
-    "navigation_page": "Choose a page"
+    "navigation_page": "Choose a page",
+    "selected_subject": None
 }
+
 
 for key, value in DEFAULT_STATE.items():
     if key not in st.session_state:
@@ -375,6 +380,151 @@ p, label, li {
 </style>
 """, unsafe_allow_html=True)
 
+
+st.markdown("""
+<style>
+
+/* ---------- Updated academic theme ---------- */
+
+@keyframes app-rise-in {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes app-gradient-drift {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+.stApp {
+    background: #f3f7fa;
+}
+
+h1 {
+    color: #153448 !important;
+}
+
+h2, h3 {
+    color: #176b70 !important;
+}
+
+.stButton > button {
+    background: linear-gradient(110deg, #176b70, #238b88);
+    color: white !important;
+    border: none;
+    border-radius: 12px;
+    min-height: 46px;
+    font-weight: 700;
+    transition: transform 180ms ease, box-shadow 180ms ease,
+        background-color 180ms ease;
+}
+
+.stButton > button:hover {
+    background: linear-gradient(110deg, #10565c, #176b70);
+    box-shadow: 0 5px 15px rgba(23, 107, 112, 0.2);
+    transform: translateY(-2px);
+}
+
+.stDownloadButton > button {
+    background: #e5f3f2;
+    color: #155e63 !important;
+    border: 1px solid #b9dcda;
+    border-radius: 10px;
+}
+
+[data-testid="stForm"] {
+    background: #ffffff;
+    border: 1px solid #dce8ed;
+    border-radius: 16px;
+}
+
+.subject-card {
+    background: white;
+    border: 1px solid #dce8ed;
+    border-radius: 16px;
+    padding: 20px 16px;
+    min-height: 150px;
+    box-shadow: 0 4px 14px rgba(21, 52, 72, 0.06);
+    margin-bottom: 10px;
+    animation: app-rise-in 560ms ease-out both;
+    transition: transform 200ms ease, box-shadow 200ms ease,
+        border-color 200ms ease;
+}
+
+.subject-card:hover {
+    transform: translateY(-4px);
+    border-color: #9bcac7;
+    box-shadow: 0 10px 24px rgba(21, 52, 72, 0.13);
+}
+
+.subject-card h3 {
+    color: #176b70 !important;
+    font-size: 17px;
+    margin-bottom: 8px;
+}
+
+.subject-card p {
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.page-hero {
+    background: linear-gradient(120deg, #153448, #176b70);
+    background-size: 180% 180%;
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 25px;
+    color: white;
+    animation:
+        app-rise-in 560ms ease-out both,
+        app-gradient-drift 20s ease-in-out infinite;
+    transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.page-hero:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px rgba(21, 52, 72, 0.14);
+}
+
+.page-hero h1 {
+    color: white !important;
+    font-size: 32px;
+}
+
+.page-hero p {
+    color: #e1f2f1;
+    margin-bottom: 0;
+}
+
+.step-label {
+    color: #176b70;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .page-hero,
+    .subject-card,
+    .stButton > button {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 # ==========================================================
 # 5. AUTHENTICATION
@@ -809,6 +959,11 @@ with st.sidebar:
             "latest_generation_results",
             "latest_valuation_path",
             "latest_quality_report"
+
+            "selected_subject",
+            "latest_generation_subject",
+            "latest_generation_exam",
+            "latest_generation_source"
         ]
 
         for key in keys_to_clear:
@@ -848,117 +1003,125 @@ if page == "Faculty Management":
     st.stop()
 
 
+
 # ==========================================================
-# 12. HOME DASHBOARD
+# 12. HOME — SUBJECT SELECTION
 # ==========================================================
 
 if page == "Home":
 
     st.markdown("""
-    <div class="hero">
-        <div class="hero-tag">✦ AGENTIC AI POWERED WORKSPACE</div>
-        <h1>Question Paper Intelligence</h1>
-        <p>
-            Intelligent Question Paper Generation,
-            Outcome-Based Education Mapping and
-            Academic Quality Analysis.
-        </p>
+    <div class="page-hero">
         <div style="
-            margin-top:22px;
-            font-size:13px;
-            color:#dce7ff;
+            font-size:12px;
+            letter-spacing:1.5px;
+            font-weight:800;
+            color:#bce9e5;
         ">
-            GENERATE &nbsp; • &nbsp;
-            VALIDATE &nbsp; • &nbsp;
-            ANALYZE &nbsp; • &nbsp;
-            EXPORT
+            QUESTION PAPER OBE AGENT
         </div>
+        <h1>Academic Assessment Workspace</h1>
+        <p>
+            Select a subject to configure your examination
+            and generate question papers using Agentic AI.
+        </p>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("### Welcome to your academic workspace")
-
-    st.write(
-        "Choose a workspace below to begin. "
-        "Use the available tools to generate and review academic documents."
+    st.markdown("### Choose Your Subject")
+    st.caption(
+        "Select one of the available subjects to continue."
     )
+
+    subjects = [
+        {
+            "name": "Cloud Computing",
+            "icon": "☁️",
+            "description": "Cloud architecture, services and deployment."
+        },
+        {
+            "name": "Cyber Security",
+            "icon": "🔐",
+            "description": "Security concepts, threats and protection."
+        },
+        {
+            "name": "Deep Learning",
+            "icon": "🧠",
+            "description": "Neural networks and deep learning methods."
+        },
+        {
+            "name": "Gen AI",
+            "icon": "✨",
+            "description": "Generative AI concepts and applications."
+        }
+    ]
+
+    columns = st.columns(4, gap="medium")
+
+    for index, subject_info in enumerate(subjects):
+
+        with columns[index]:
+
+            st.markdown(
+                f"""
+                <div class="subject-card" style="animation-delay: {index * 70}ms;">
+                    <div style="font-size:34px;">
+                        {subject_info["icon"]}
+                    </div>
+                    <h3>{subject_info["name"]}</h3>
+                    <p>{subject_info["description"]}</p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+            if st.button(
+                "Select Subject →",
+                key=f"subject_{index}",
+                use_container_width=True
+            ):
+                st.session_state.selected_subject = (
+                    subject_info["name"]
+                )
+                navigate_to("Configure Examination")
+                st.rerun()
 
     st.divider()
 
-    col1, col2 = st.columns(2)
+    st.markdown("### Your Academic Tools")
 
-    with col1:
-        st.markdown("""
-        <div class="feature-card">
-            <h3>📝 Question Paper Generation</h3>
-            <p>
-                Generate one, two or three independent question paper
-                sets using the Lab 8 Parallel Swarm Agent.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+    tool_col1, tool_col2, tool_col3 = st.columns(3)
+
+    with tool_col1:
+        st.markdown("**📋 Scheme of Valuation**")
+        st.caption("Create evaluation schemes for generated papers.")
 
         if st.button(
-            "Open Question Paper Generator →",
-            key="home_generate",
-            use_container_width=True
-        ):
-            navigate_to("Generate Question Paper")
-            st.rerun()
-
-    with col2:
-        st.markdown("""
-        <div class="feature-card">
-            <h3>📋 Scheme of Valuation</h3>
-            <p>
-                Generate a separate scheme of valuation
-                for an existing question paper.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-
-        if st.button(
-            "Open Scheme of Valuation →",
+            "Open Valuation",
             key="home_valuation",
             use_container_width=True
         ):
             navigate_to("Generate Scheme of Valuation")
             st.rerun()
 
-    col3, col4 = st.columns(2)
-
-    with col3:
-        st.markdown("""
-        <div class="feature-card">
-            <h3>📊 Coverage & Quality Report</h3>
-            <p>
-                Analyze Bloom's Taxonomy, Course Outcomes
-                and unit-wise question distribution.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+    with tool_col2:
+        st.markdown("**📊 Coverage & Quality**")
+        st.caption("Review Bloom levels, CO mapping and unit coverage.")
 
         if st.button(
-            "Open Quality Analysis →",
+            "Open Quality Report",
             key="home_quality",
             use_container_width=True
         ):
             navigate_to("Coverage & Quality Report")
             st.rerun()
 
-    with col4:
-        st.markdown("""
-        <div class="feature-card">
-            <h3>📁 Generated Documents</h3>
-            <p>
-                Preview and download question papers,
-                valuation schemes and quality reports.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+    with tool_col3:
+        st.markdown("**📁 Generated Documents**")
+        st.caption("Preview and download your generated PDFs.")
 
         if st.button(
-            "Open Generated Documents →",
+            "Open Documents",
             key="home_documents",
             use_container_width=True
         ):
@@ -966,70 +1129,83 @@ if page == "Home":
             st.rerun()
 
     st.divider()
-    st.markdown("### 📚 Previous Question Papers")
 
-    st.write(
-        "Browse previously generated question papers, preview pages "
-        "and download the original PDF documents."
-    )
+    previous_col, lab_col = st.columns(2)
 
-    if st.button(
-        "View Previous Question Papers →",
-        key="home_previous",
-        use_container_width=True
-    ):
-        navigate_to("Previous Question Papers")
-        st.rerun()
+    with previous_col:
+        if st.button(
+            "📚 Previous Question Papers",
+            use_container_width=True
+        ):
+            navigate_to("Previous Question Papers")
+            st.rerun()
 
-    st.divider()
-    st.markdown("### Agentic AI Workflow")
+    with lab_col:
+        if st.button(
+            "🧪 Agentic AI Labs 1–14",
+            use_container_width=True
+        ):
+            navigate_to("Labs 1–14")
+            st.rerun()
 
-    left, right = st.columns(2)
-
-    with left:
-        st.markdown("""
-        **01 — Faculty Input**
-
-        Select subject, examination type, marks and lesson plan.
-
-        **02 — Intelligent Retrieval**
-
-        Retrieve relevant questions from available sources.
-
-        **03 — Multi-Agent Processing**
-
-        Analysis, Bloom classification and question validation.
-        """)
-
-    with right:
-        st.markdown("""
-        **04 — OBE Mapping**
-
-        Course Outcome and Program Outcome mapping.
-
-        **05 — Document Generation**
-
-        Generate question papers and supporting documents.
-
-        **06 — Faculty Review**
-
-        Preview, review and download generated documents.
-        """)
 
 
 # ==========================================================
-# 13. QUESTION PAPER GENERATION
+# 13. EXAMINATION CONFIGURATION AND GENERATION
 # ==========================================================
 
-elif page == "Generate Question Paper":
+elif page == "Configure Examination":
 
-    st.title("📝 Generate Question Paper")
+    subject = st.session_state.get("selected_subject")
 
-    st.write(
-        "Configure the examination and generate independent question paper sets."
-    )
+    st.markdown("""
+    <div class="step-label">STEP 2 OF 3</div>
+    """, unsafe_allow_html=True)
+
+    st.title("Configure Your Examination")
+
+    if not subject:
+
+        st.warning("Please select a subject first.")
+
+        if st.button("← Back to Subject Selection"):
+            navigate_to("Home")
+            st.rerun()
+
+        st.stop()
+
+    st.markdown(f"""
+    <div class="page-hero">
+        <div style="color:#bce9e5; font-size:12px;
+                    font-weight:800; letter-spacing:1px;">
+            SELECTED SUBJECT
+        </div>
+        <h1>{subject}</h1>
+        <p>Configure the examination details below.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    back_col, subject_col = st.columns([1, 3])
+
+    with back_col:
+        if st.button("← Change Subject"):
+            st.session_state.selected_subject = None
+            navigate_to("Home")
+            st.rerun()
+
+    lesson_plan = get_lesson_plan(subject)
+
+    if lesson_plan:
+        st.success(f"Lesson plan available: {lesson_plan.name}")
+    else:
+        st.error(
+            f"Lesson plan not found for {subject}. "
+            "Please check the data/lesson_plans folder."
+        )
 
     st.divider()
+
+    st.markdown("### Examination Details")
 
     with st.form("question_paper_form"):
 
@@ -1037,19 +1213,10 @@ elif page == "Generate Question Paper":
 
         with col1:
 
-            subject = st.selectbox(
-                "Select Subject",
-                [
-                    "Cloud Computing",
-                    "Cyber Security",
-                    "Deep Learning",
-                    "Gen AI"
-                ]
-            )
-
             exam_type = st.selectbox(
                 "Examination Type",
-                ["ISA1", "ISA2", "ESA"]
+                ["ISA1", "ISA2", "ESA"],
+                help="Choose the examination for which the paper is required."
             )
 
             marks_options = (
@@ -1072,25 +1239,31 @@ elif page == "Generate Question Paper":
 
             num_sets = st.selectbox(
                 "Number of Question Papers",
-                [1, 2, 3]
+                [1, 2, 3],
+                format_func=lambda n: (
+                    f"{n} Paper Set" if n == 1
+                    else f"{n} Paper Sets"
+                )
             )
-
-            lesson_plan = get_lesson_plan(subject)
-
-            if lesson_plan:
-                st.success(f"Lesson plan found: {lesson_plan.name}")
-            else:
-                st.error("Lesson plan PDF not found for this subject.")
 
         st.divider()
 
+        st.markdown("#### Generation Summary")
+
+        summary1, summary2, summary3 = st.columns(3)
+
+        summary1.metric("Subject", subject)
+        summary2.metric("Exam Type", exam_type)
+        summary3.metric("Maximum Marks", total_marks)
+
         st.info(
-            "Each paper set is generated separately using "
-            "the existing Lab 8 Parallel Swarm Agent."
+            "Each paper set is generated using the existing "
+            "Lab 8 Parallel Swarm Agent. Separate valuation PDFs "
+            "will also be prepared when the generated paper data is available."
         )
 
         submitted = st.form_submit_button(
-            "🚀 Generate Question Paper",
+            "🚀 Generate Question Papers",
             use_container_width=True
         )
 
@@ -1112,7 +1285,8 @@ elif page == "Generate Question Paper":
             try:
 
                 with st.spinner(
-                    f"Generating {num_sets} question paper set(s)..."
+                    f"Generating {num_sets} paper set(s). "
+                    "Please wait..."
                 ):
 
                     swarm = ParallelSwarmAgent()
@@ -1126,31 +1300,47 @@ elif page == "Generate Question Paper":
                         num_sets=num_sets
                     )
 
+                if not isinstance(results, list):
+                    raise ValueError(
+                        "The generation agent did not return "
+                        "a valid list of results."
+                    )
+
                 st.session_state.latest_generation_results = results
+                st.session_state.latest_generation_subject = subject
+                st.session_state.latest_generation_exam = exam_type
 
                 successful = [
                     result for result in results
-                    if result.get("status") == "success"
+                    if isinstance(result, dict)
+                    and result.get("status") == "success"
                 ]
 
-                failed = [
-                    result for result in results
-                    if result.get("status") != "success"
-                ]
+                failed = len(results) - len(successful)
 
                 if successful:
                     st.success(
                         f"Successfully generated {len(successful)} "
-                        f"of {num_sets} question paper set(s)."
+                        f"of {num_sets} paper set(s)."
                     )
 
                 if failed:
+                    st.warning(
+                        f"{failed} paper set(s) were unsuccessful. "
+                        "Check the details below."
+                    )
+
+                if not successful:
                     st.error(
-                        f"{len(failed)} paper set(s) could not be generated."
+                        "No question papers were generated successfully."
                     )
 
             except Exception as error:
                 st.error(f"Question paper generation failed: {error}")
+
+    # ------------------------------------------------------
+    # DISPLAY GENERATED PAPERS AND SEPARATE DOWNLOADS
+    # ------------------------------------------------------
 
     latest_results = st.session_state.get(
         "latest_generation_results",
@@ -1160,9 +1350,22 @@ elif page == "Generate Question Paper":
     if latest_results:
 
         st.divider()
-        st.subheader("Generated Question Papers")
+
+        st.markdown("""
+        <div class="step-label">STEP 3 OF 3</div>
+        """, unsafe_allow_html=True)
+
+        st.title("Generated Documents")
+
+        st.caption(
+            "Preview and download each question paper and its "
+            "corresponding scheme of valuation separately."
+        )
 
         for index, result in enumerate(latest_results):
+
+            if not isinstance(result, dict):
+                continue
 
             set_name = result.get(
                 "set_name",
@@ -1176,34 +1379,133 @@ elif page == "Generate Question Paper":
                 expanded=True
             ):
 
-                if successful:
+                if not successful:
 
-                    st.write(
-                        f"Generation time: "
-                        f"{result.get('time_taken', 0):.2f} seconds"
-                    )
-
-                    if result.get("pdf_path"):
-
-                        pdf_path = resolve_path(result["pdf_path"])
-
-                        if pdf_path.exists():
-                            display_pdf_preview(
-                                pdf_path,
-                                "Download Question Paper"
-                            )
-                        else:
-                            st.warning(f"PDF not found: {pdf_path}")
-
-                    else:
-                        st.warning("No PDF path was returned by the agent.")
-
-                else:
                     st.error(
                         result.get(
                             "error",
-                            "This question paper set could not be generated."
+                            "This paper set could not be generated."
                         )
+                    )
+                    continue
+
+                st.caption(
+                    f"Generation time: "
+                    f"{result.get('time_taken', 0):.2f} seconds"
+                )
+
+                # Locate the generated question paper PDF.
+                pdf_path = None
+
+                if result.get("pdf_path"):
+                    pdf_path = resolve_path(result["pdf_path"])
+
+                if pdf_path is not None and pdf_path.exists():
+
+                    st.markdown("#### 📝 Question Paper")
+
+                    display_pdf_preview(
+                        pdf_path,
+                        "Download Question Paper PDF"
+                    )
+
+                else:
+                    st.warning(
+                        "The question paper PDF path was not found "
+                        "in the agent result."
+                    )
+
+                # Find the JSON created by the coordinator.
+                json_path = None
+
+                if result.get("json_path"):
+                    candidate = resolve_path(result["json_path"])
+
+                    if candidate.exists():
+                        json_path = candidate
+
+                if json_path is None:
+
+                    subject_prefix = subject.replace(" ", "_")
+                    set_suffix = f"_{set_name}" if set_name else ""
+
+                    expected_json = (
+                        OUTPUT_DIR /
+                        f"{subject_prefix}_{exam_type}"
+                        f"{set_suffix}_Paper.json"
+                    )
+
+                    if expected_json.exists():
+                        json_path = expected_json
+
+                # Fallback: match the latest paper JSON for this set.
+                if json_path is None:
+
+                    candidates = list(
+                        OUTPUT_DIR.glob(
+                            f"{subject.replace(' ', '_')}_"
+                            f"{exam_type}*_Paper.json"
+                        )
+                    )
+
+                    if set_name:
+                        matching = [
+                            path for path in candidates
+                            if set_name in path.name
+                        ]
+
+                        if matching:
+                            candidates = matching
+
+                    if candidates:
+                        json_path = max(
+                            candidates,
+                            key=lambda path: path.stat().st_mtime
+                        )
+
+                # Generate valuation PDF if required.
+                valuation_path = None
+
+                if json_path and json_path.exists():
+
+                    valuation_path = get_valuation_path(
+                        json_path.name
+                    )
+
+                    try:
+
+                        if not valuation_path.exists():
+
+                            with open(
+                                json_path,
+                                "r",
+                                encoding="utf-8"
+                            ) as file:
+                                paper_data = json.load(file)
+
+                            ValuationTool().generate(
+                                paper_data,
+                                str(valuation_path)
+                            )
+
+                        if valuation_path.exists():
+
+                            st.markdown("#### 📋 Scheme of Valuation")
+
+                            display_pdf_preview(
+                                valuation_path,
+                                "Download Scheme of Valuation PDF"
+                            )
+
+                    except Exception as error:
+                        st.warning(
+                            f"Unable to generate valuation PDF: {error}"
+                        )
+
+                else:
+                    st.warning(
+                        "The generated paper JSON was not found. "
+                        "The valuation PDF cannot be generated without it."
                     )
 
 
@@ -1632,55 +1934,85 @@ elif page == "Labs 1–14":
     st.divider()
 
     lab_details = [
-        (1, "Basic Agent Concepts", None),
-        (2, "Agent Tools", None),
-        (3, "Agent Memory", None),
-        (4, "Multi-Agent Workflow", None),
-        (5, "Agent Communication", None),
-        (6, "Agentic AI Applications", None),
-        (7, "Node Graph Agent", "lab7_node_graph_agent.py"),
-        (8, "Parallel Swarm Agent", "lab8_parallel_swarm_agent.py"),
-        (9, "Deep Research Agent", "lab9_deep_research_agent.py"),
-        (10, "Cloud Operations Agent", "lab10_cloud_ops_agent.py"),
-        (11, "SDLC Factory", "lab11_sdlc_factory.py"),
-        (12, "Safety and Governance", "lab12_safety_governance.py"),
-        (13, "Discipline Agents", "lab13_discipline_agents.py"),
-        (14, "Capstone Studio", "lab14_capstone_studio.py")
+        (1, "Basic Agent Concepts", [
+            "runtime/openclaw_runtime.py",
+            "skills/question_paper_skill.py"
+        ]),
+        (2, "Agent Tools", [
+            "runtime/openclaw_runtime.py",
+            "tools/question_bank_tool.py"
+        ]),
+        (3, "Agent Memory", [
+            "runtime/openclaw_runtime.py",
+            "memory/memory_manager.py"
+        ]),
+        (4, "Multi-Agent Workflow", [
+            "agent/coordinator.py"
+        ]),
+        (5, "Agent Communication", [
+            "agent/coordinator.py"
+        ]),
+        (6, "Agentic AI Applications", [
+            "main.py"
+        ]),
+        (7, "Node Graph Agent", [
+            "agent/lab7_node_graph_agent.py"
+        ]),
+        (8, "Parallel Swarm Agent", [
+            "agent/lab8_parallel_swarm_agent.py"
+        ]),
+        (9, "Deep Research Agent", [
+            "agent/lab9_deep_research_agent.py"
+        ]),
+        (10, "Cloud Operations Agent", [
+            "agent/lab10_cloud_ops_agent.py"
+        ]),
+        (11, "SDLC Factory", [
+            "agent/lab11_sdlc_factory.py"
+        ]),
+        (12, "Safety and Governance", [
+            "agent/lab12_safety_governance.py"
+        ]),
+        (13, "Discipline Agents", [
+            "agent/lab13_discipline_agents.py"
+        ]),
+        (14, "Capstone Studio", [
+            "agent/lab14_capstone_studio.py"
+        ])
     ]
 
-    for number, title, filename in lab_details:
+    for number, title, source_files in lab_details:
 
         with st.expander(f"Lab {number} — {title}"):
 
-            if filename:
+            missing_files = [
+                filename
+                for filename in source_files
+                if not (ROOT_DIR / filename).is_file()
+            ]
 
-                lab_path = AGENT_DIR / filename
-
-                if lab_path.exists():
-
-                    st.success("Source file available")
-                    st.code(f"agent/{filename}")
-
-                else:
-                    st.error("Source file not found.")
-
-            else:
-                st.info(
-                    "The source file and execution workflow "
-                    "for this lab have not yet been verified."
+            if missing_files:
+                st.error(
+                    "Source file(s) not found: "
+                    + ", ".join(missing_files)
                 )
 
+            else:
+                st.success("Implementation source available")
+                st.code("\n".join(source_files))
+
             st.caption(
-                "Source-file availability does not by itself confirm "
-                "that a laboratory is fully integrated and tested."
+                "Source availability does not by itself confirm that "
+                "a lab's workflow has been executed or fully tested."
             )
 
     st.divider()
 
     st.info(
         "Lab 8 parallel question-paper generation is connected "
-        "to the Generate Question Paper page. Other labs require "
-        "individual execution checks before integration."
+        "to the Generate Question Paper page. This page checks for "
+        "source files; other labs still need individual workflow "
+        "checks before integration."
     )
 
 
