@@ -81,6 +81,6 @@ class LessonPlanAgent:
             "Unit 3": {"title": "Applications", "questions": u3_qs}
         }
 
-        print(f"[{self.name}] ✅ Extracted {total_q} UNIQUE questions.")
+        print(f"[{self.name}] Extracted {total_q} UNIQUE questions.")
         
         return {"course": course_title, "course_code": course_code, "units": units}

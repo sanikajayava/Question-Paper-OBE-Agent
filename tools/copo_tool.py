@@ -55,7 +55,15 @@ class COPOTool:
         co_distribution = {co: 0 for co in self.CO_KEYWORDS}
         
         for q in questions:
-            mapping = self.map_question(q["question_text"])
+            tagged_co = q.get("co")
+            if tagged_co in self.CO_TO_PO:
+                mapping = {
+                    "co": tagged_co,
+                    "po": q.get("po") or self.get_po_for_co(tagged_co),
+                    "mapped": True,
+                }
+            else:
+                mapping = self.map_question(q["question_text"])
             co_distribution[mapping["co"]] += 1
             results.append({
                 "id": q["id"],

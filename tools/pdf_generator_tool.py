@@ -74,7 +74,8 @@ class PDFGeneratorTool:
                         
                         q_marks = str(q.get('marks', 0))
                         q_co = q.get('CO', '?').replace('CO', '')
-                        q_bl = co_to_bl.get("CO"+q_co, 'L2')
+                        q_bl = q.get("bloom") or co_to_bl.get("CO" + q_co, "L2")
+                        q_bl = q_bl.split("_")[0]
                         
                         po_raw = q.get('PO', '?')
                         q_po = po_raw.split(',')[0].strip().replace('PO', '') if po_raw else '?'
@@ -94,4 +95,4 @@ class PDFGeneratorTool:
 
         os.makedirs("output", exist_ok=True)
         pdf.output(output_filename)
-        print(f"📄 PDF Generated successfully: {output_filename}")
+        print(f"PDF Generated successfully: {output_filename}")

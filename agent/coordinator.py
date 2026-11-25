@@ -13,10 +13,13 @@ from agent.past_paper_agent import PastPaperAnalysisAgent
 from agent.validation_agent import ValidationAgent
 from agent.generation_agent import QuestionGenerationAgent
 from agent.bloom_taxonomy_agent import BloomTaxonomyAgent
+from agent.blueprint_agent import BlueprintAgent
+from agent.difficulty_coverage_agent import DifficultyCoverageAgent
 
 from tools.copo_tool import COPOTool
 from tools.pdf_generator_tool import PDFGeneratorTool
 from tools.valuation_tool import ValuationTool
+from tools.question_tagging_tool import QuestionTaggingTool
 
 
 class QuestionPaperCoordinator:
@@ -32,6 +35,9 @@ class QuestionPaperCoordinator:
         self.bloom_agent = BloomTaxonomyAgent()
         self.validation_agent = ValidationAgent()
         self.generation_agent = QuestionGenerationAgent()
+        self.blueprint_agent = BlueprintAgent()
+        self.coverage_agent = DifficultyCoverageAgent()
+        self.tagging_tool = QuestionTaggingTool()
 
         # Initialize Tools
         self.copo_tool = COPOTool()
@@ -102,7 +108,16 @@ class QuestionPaperCoordinator:
             print("[Coordinator] ERROR: No valid questions found. Aborting.")
             return None
 
-        # 5. CO/PO Mapping
+        # 5. Build blueprint and tag the candidate bank.
+        blueprint = self.blueprint_agent.create_blueprint(
+            lesson_plan, exam_type, total_marks
+        )
+        for question, tags in zip(
+            valid_qs, self.tagging_tool.tag_questions(valid_qs)
+        ):
+            question.update(tags)
+
+        # 6. CO/PO Mapping
         print(f"\n[{self.name}] Performing CO/PO Mapping...")
 
         copo_report = self.copo_tool.map_paper(valid_qs)
@@ -112,7 +127,7 @@ class QuestionPaperCoordinator:
             for item in copo_report["questions"]
         }
 
-        # 6. Generate Final Question Paper
+        # 7. Generate Final Question Paper
         marks_per_question = analysis.get(
             "marks_per_question",
             10
@@ -125,7 +140,8 @@ class QuestionPaperCoordinator:
             total_marks,
             marks_per_question,
             exam_type,
-            set_name
+            set_name,
+            blueprint
         )
 
         if not final_paper:
@@ -150,11 +166,28 @@ class QuestionPaperCoordinator:
                         )
 
                     else:
-                        q["CO"] = "CO1"
-                        q["PO"] = "PO1"
+                        q["CO"] = q.get("co", "CO1")
+                        q["PO"] = ", ".join(q.get("po", ["PO1"]))
 
         # Attach Analysis Information
         final_paper["copo_analysis"] = copo_report
+        final_paper["coverage_analysis"] = self.coverage_agent.analyze(
+            [
+                {
+                    **question,
+                    "unit": section.get("unit"),
+                }
+                for section in final_paper.get("sections", [])
+                for main_question in section.get("questions", [])
+                for question in main_question.get("sub_questions", [])
+            ],
+            blueprint,
+        )
+        final_paper["tagging_method"] = (
+            "Gemini with rule validation"
+            if os.getenv("GEMINI_API_KEY")
+            else "Local keyword rules"
+        )
         final_paper["exam_type"] = exam_type
         final_paper["total_marks"] = total_marks
 

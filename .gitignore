@@ -3,6 +3,7 @@ __pycache__/
 *.db
 .env
 output/
+data/chroma_question_bank/
 # Nested clones / accidental embedded repos
 Question-Paper-OBE-Agent/
 Question-Paper-OBE-Agent.bak/

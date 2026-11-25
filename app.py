@@ -18,6 +18,7 @@ from auth_ui import render_login, render_admin_panel
 from agent.lab8_parallel_swarm_agent import ParallelSwarmAgent
 from tools.valuation_tool import ValuationTool
 from tools.analysis_tool import AnalysisTool
+from agent.difficulty_coverage_agent import DifficultyCoverageAgent
 
 
 # ==========================================================
@@ -588,12 +589,13 @@ def get_bloom_distribution(questions):
     """Use the existing Bloom analysis tool."""
     analysis_tool = AnalysisTool()
 
-    analysis_questions = [
-        {"question_text": question.get("text", "")}
-        for question in questions
-    ]
-
-    return analysis_tool.analyze_bloom(analysis_questions)
+    distribution = {level: 0 for level in analysis_tool.BLOOM_LEVELS}
+    for question in questions:
+        level = question.get("bloom")
+        if level not in distribution:
+            level = analysis_tool.classify_bloom(question.get("text", ""))
+        distribution[level] += 1
+    return distribution
 
 
 def get_co_distribution(questions):
@@ -762,6 +764,9 @@ def generate_quality_report(paper, output_path):
     bloom = get_bloom_distribution(questions)
     co = get_co_distribution(questions)
     units = get_unit_distribution(paper)
+    difficulty = DifficultyCoverageAgent().analyze(
+        questions, paper.get("blueprint")
+    )["difficulty_distribution"]
 
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
@@ -806,7 +811,15 @@ def generate_quality_report(paper, output_path):
 
     pdf.ln(4)
     pdf.set_font("Arial", "B", 12)
-    add_line("2. Course Outcome Distribution")
+    add_line("2. Estimated Difficulty Distribution")
+
+    pdf.set_font("Arial", "", 10)
+    for level in ("Easy", "Medium", "Hard"):
+        add_line(f"{level}: {difficulty.get(level, 0)} questions")
+
+    pdf.ln(4)
+    pdf.set_font("Arial", "B", 12)
+    add_line("3. Course Outcome Distribution")
 
     pdf.set_font("Arial", "", 10)
 
@@ -843,7 +856,7 @@ def generate_quality_report(paper, output_path):
 
     pdf.ln(4)
     pdf.set_font("Arial", "B", 12)
-    add_line("3. Unit-wise Distribution")
+    add_line("4. Unit-wise Distribution")
 
     pdf.set_font("Arial", "", 10)
 
@@ -852,13 +865,13 @@ def generate_quality_report(paper, output_path):
 
     pdf.ln(4)
     pdf.set_font("Arial", "B", 12)
-    add_line("4. Quality Notes")
+    add_line("5. Quality Notes")
 
     pdf.set_font("Arial", "", 10)
 
     add_line(
-        "Bloom classification and CO distribution are automated "
-        "estimates based on the project's existing keyword-based tools."
+        "Bloom, difficulty, and CO classifications are estimates produced "
+        "by rules or optional LLM tagging."
     )
 
     add_line(
@@ -1606,7 +1619,8 @@ elif page == "Coverage & Quality Report":
     st.title("📊 Coverage & Quality Report")
 
     st.write(
-        "Analyze Bloom's Taxonomy, CO mapping and unit-wise distribution."
+        "Analyze Bloom's Taxonomy, estimated difficulty, CO mapping and "
+        "unit-wise distribution."
     )
 
     st.divider()
@@ -1627,6 +1641,9 @@ elif page == "Coverage & Quality Report":
         bloom_data = get_bloom_distribution(questions)
         co_data = get_co_distribution(questions)
         unit_data = get_unit_distribution(paper)
+        difficulty_data = DifficultyCoverageAgent().analyze(
+            questions, paper.get("blueprint")
+        )["difficulty_distribution"]
 
         st.markdown("### Selected Paper")
 
@@ -1646,6 +1663,20 @@ elif page == "Coverage & Quality Report":
         )
 
         col3.metric("Units", len(unit_data))
+
+        st.divider()
+        st.subheader("⚖️ Estimated Difficulty Distribution")
+        difficulty_fig = px.bar(
+            x=["Easy", "Medium", "Hard"],
+            y=[difficulty_data.get(level, 0) for level in ("Easy", "Medium", "Hard")],
+            labels={"x": "Estimated Difficulty", "y": "Question Count"},
+            color=["Easy", "Medium", "Hard"],
+            color_discrete_sequence=px.colors.qualitative.Set2,
+        )
+        difficulty_fig.update_layout(
+            plot_bgcolor="white", paper_bgcolor="white", showlegend=False
+        )
+        st.plotly_chart(difficulty_fig, use_container_width=True)
 
         st.divider()
         st.subheader("🧠 Bloom's Taxonomy Distribution")
@@ -1796,8 +1827,8 @@ elif page == "Coverage & Quality Report":
             )
 
         st.info(
-            "Bloom and CO distributions are automated estimates based "
-            "on the existing keyword-based analysis and mapping tools. "
+            "Bloom, difficulty, and CO classifications are automated "
+            "estimates based on rules or optional LLM tagging. "
             "Faculty review is required before academic approval."
         )
 

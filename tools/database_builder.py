@@ -85,8 +85,8 @@ def build_database():
     with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
         json.dump(all_questions, f, indent=4)
 
-    print(f"\n✅ SUCCESS: Extracted {len(all_questions)} smarter chunks.")
-    print(f"✅ Database saved to: {OUTPUT_JSON}")
+    print(f"\nSUCCESS: Extracted {len(all_questions)} smarter chunks.")
+    print(f"Database saved to: {OUTPUT_JSON}")
 
 if __name__ == "__main__":
     build_database()

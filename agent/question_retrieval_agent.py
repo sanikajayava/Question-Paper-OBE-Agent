@@ -30,8 +30,41 @@ class QuestionRetrievalAgent:
             for idx, text in enumerate(unit_data["questions"]):
                 valid_questions.append({
                     "id": f"Q_{unit_name.replace(' ', '')}_{idx}",
-                    "question_text": text
+                    "question_text": text,
+                    "unit": unit_name,
                 })
+
+        if os.getenv("ENABLE_VECTOR_RETRIEVAL", "1").strip().lower() not in {
+            "0", "false", "no"
+        }:
+            known_text = {
+                question["question_text"].strip().lower()
+                for question in valid_questions
+            }
+            for unit_name, unit_data in lesson_plan_data["units"].items():
+                if target_unit and unit_name != target_unit:
+                    continue
+                query_text = " ".join(unit_data.get("topics", [])) or " ".join(
+                    unit_data.get("questions", [])
+                )
+                if not query_text:
+                    continue
+                semantic_questions = self.tool.semantic_query(
+                    query_text,
+                    subject,
+                    exam_type,
+                    target_batch,
+                )
+                for question in semantic_questions:
+                    text = question["question_text"].strip()
+                    if text.lower() in known_text:
+                        continue
+                    question["id"] = (
+                        f"VEC_{unit_name.replace(' ', '')}_{question['id']}"
+                    )
+                    question["unit"] = unit_name
+                    valid_questions.append(question)
+                    known_text.add(text.lower())
                 
         print(f"[{self.name}] Extracted {len(valid_questions)} questions for this exam.")
         return valid_questions

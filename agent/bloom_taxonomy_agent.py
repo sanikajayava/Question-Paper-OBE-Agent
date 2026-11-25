@@ -19,7 +19,7 @@ class BloomTaxonomyAgent:
         # Find the dominant level
         dominant_level = max(bloom_distribution, key=bloom_distribution.get)
         
-        print(f"[{self.name}] ✅ Analysis Complete.")
+        print(f"[{self.name}] Analysis Complete.")
         print(f"  -> Distribution: {bloom_distribution}")
         print(f"  -> Dominant Level: {dominant_level}")
         
