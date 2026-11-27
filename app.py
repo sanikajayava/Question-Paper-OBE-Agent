@@ -142,9 +142,9 @@ st.markdown("""
 .stApp {
     background: linear-gradient(
         135deg,
-        #f3f6ff 0%,
-        #edf2ff 50%,
-        #f8f3ff 100%
+        #f5f0ff 0%,
+        #efe7fb 50%,
+        #faf7ff 100%
     );
 }
 
@@ -155,22 +155,22 @@ st.markdown("""
 }
 
 h1 {
-    color: #172554 !important;
+    color: #35204f !important;
     font-weight: 800 !important;
 }
 
 h2 {
-    color: #253b73 !important;
+    color: #4b2f6f !important;
     font-weight: 750 !important;
 }
 
 h3 {
-    color: #344779 !important;
+    color: #533779 !important;
     font-weight: 700 !important;
 }
 
 p, label, li {
-    color: #34445f;
+    color: #3c3150;
 }
 
 /* ---------- Sidebar ---------- */
@@ -178,14 +178,25 @@ p, label, li {
 [data-testid="stSidebar"] {
     background: linear-gradient(
         180deg,
-        #101b35 0%,
-        #1d2c55 55%,
-        #443b83 100%
+        #302044 0%,
+        #493064 55%,
+        #5c3e7d 100%
     );
 }
 
 [data-testid="stSidebar"] * {
     color: #ffffff;
+}
+
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"],
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h1,
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2,
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h3,
+[data-testid="stSidebar"] [data-testid="stWidgetLabel"],
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"],
+[data-testid="stSidebar"] label {
+    color: #f8fafc !important;
 }
 
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
@@ -213,8 +224,8 @@ p, label, li {
 .stButton > button {
     background: linear-gradient(
         110deg,
-        #5267e8,
-        #8758d6
+        #7953b5,
+        #684099
     );
     color: #ffffff !important;
     border: none;
@@ -227,8 +238,8 @@ p, label, li {
 .stButton > button:hover {
     background: linear-gradient(
         110deg,
-        #354bd0,
-        #7040bd
+        #603d91,
+        #4f2f7b
     );
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(70,80,180,0.2);
@@ -237,23 +248,23 @@ p, label, li {
 /* ---------- Download buttons ---------- */
 
 .stDownloadButton > button {
-    background: #e9efff;
-    color: #253b73 !important;
-    border: 1px solid #cbd8ff;
+    background: #f1eafb;
+    color: #4b2f6f !important;
+    border: 1px solid #d5c3ed;
     border-radius: 10px;
     font-weight: 700;
 }
 
 .stDownloadButton > button:hover {
-    background: #dce6ff;
-    color: #172554 !important;
+    background: #e7d9f7;
+    color: #35204f !important;
 }
 
 /* ---------- Forms and inputs ---------- */
 
 [data-testid="stForm"] {
     background: rgba(255,255,255,0.94);
-    border: 1px solid #dce5ff;
+    border: 1px solid #ddcfee;
     border-radius: 16px;
     padding: 22px;
 }
@@ -271,7 +282,7 @@ p, label, li {
 
 [data-testid="stExpander"] {
     background: #ffffff;
-    border: 1px solid #dce5ff;
+    border: 1px solid #ddcfee;
     border-radius: 13px;
     margin-bottom: 10px;
 }
@@ -281,9 +292,9 @@ p, label, li {
 .hero {
     background: linear-gradient(
         120deg,
-        #101b35 0%,
-        #263c78 55%,
-        #8055d6 100%
+        #302044 0%,
+        #493064 55%,
+        #7953b5 100%
     );
     padding: 40px;
     border-radius: 22px;
@@ -321,7 +332,7 @@ p, label, li {
     background: #ffffff;
     padding: 22px;
     border-radius: 16px;
-    border: 1px solid #e0e7ff;
+    border: 1px solid #e4d8f2;
     min-height: 135px;
     box-shadow: 0 4px 15px rgba(37,59,115,0.06);
     margin-bottom: 12px;
@@ -329,17 +340,18 @@ p, label, li {
 }
 
 .feature-card:hover {
-    border-color: #9baaf8;
+    border-color: #b69bd5;
     box-shadow: 0 8px 22px rgba(37,59,115,0.11);
 }
 
 .feature-card h3 {
+    color: #533779 !important;
     font-size: 18px;
     margin-bottom: 8px;
 }
 
 .feature-card p {
-    color: #64748b;
+    color: #554966;
     font-size: 13px;
     line-height: 1.6;
 }
@@ -347,7 +359,7 @@ p, label, li {
 /* ---------- Small labels ---------- */
 
 .section-label {
-    color: #64748b;
+    color: #604582;
     font-size: 12px;
     font-weight: 800;
     letter-spacing: 1.3px;
@@ -358,7 +370,7 @@ p, label, li {
 
 .footer {
     text-align: center;
-    color: #7b879f;
+    color: #685b78;
     font-size: 12px;
     padding: 30px 0 5px;
 }
@@ -367,7 +379,7 @@ p, label, li {
 
 [data-testid="stMetric"] {
     background: #ffffff;
-    border: 1px solid #e0e7ff;
+    border: 1px solid #e4d8f2;
     border-radius: 13px;
     padding: 15px;
 }
@@ -408,19 +420,94 @@ st.markdown("""
 }
 
 .stApp {
-    background: #f3f7fa;
+    background: #f5f0ff;
+}
+
+[data-testid="stHeader"],
+[data-testid="stToolbar"],
+[data-testid="stAppToolbar"],
+.stApp > header {
+    background: #f5f0ff !important;
+    color: #4b2f6f !important;
+}
+
+[data-testid="stHeader"] *,
+[data-testid="stToolbar"] *,
+[data-testid="stAppToolbar"] * {
+    color: #4b2f6f !important;
+}
+
+[data-testid="stAlert"] {
+    background: #eee4fa !important;
+    border: 1px solid #d5c3ed !important;
+    color: #3c2454 !important;
+}
+
+[data-testid="stAlert"] *,
+[data-testid="stAlert"] > div {
+    color: #3c2454 !important;
+    -webkit-text-fill-color: #3c2454 !important;
+    background-color: transparent !important;
+}
+
+[data-testid="stMain"] {
+    color: #2f1e43 !important;
+}
+
+[data-testid="stMain"] [data-testid="stMarkdownContainer"],
+[data-testid="stMain"] [data-testid="stMarkdownContainer"] p,
+[data-testid="stMain"] [data-testid="stMarkdownContainer"] li,
+[data-testid="stMain"] [data-testid="stCaptionContainer"],
+[data-testid="stMain"] [data-testid="stWidgetLabel"],
+[data-testid="stMain"] label,
+[data-testid="stMain"] [data-testid="stMetricLabel"],
+[data-testid="stMain"] [data-testid="stMetricValue"] {
+    color: #2f1e43 !important;
+}
+
+[data-testid="stMain"] input,
+[data-testid="stMain"] textarea,
+[data-testid="stMain"] [role="combobox"] {
+    color: #2f1e43 !important;
+    background-color: #ffffff !important;
+}
+
+[data-testid="stMain"] input::placeholder,
+[data-testid="stMain"] textarea::placeholder {
+    color: #64748b !important;
+    opacity: 1;
 }
 
 h1 {
-    color: #153448 !important;
+    color: #35204f !important;
 }
 
 h2, h3 {
-    color: #176b70 !important;
+    color: #533779 !important;
+}
+
+[data-testid="stMain"] [data-testid="stButton"] > button,
+[data-testid="stMain"] [data-testid="stFormSubmitButton"] > button {
+    background: linear-gradient(110deg, #7953b5, #684099) !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+[data-testid="stMain"] [data-testid="stButton"] > button *,
+[data-testid="stMain"] [data-testid="stFormSubmitButton"] > button * {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+[data-testid="stMain"] [data-testid="stButton"] > button:hover,
+[data-testid="stMain"] [data-testid="stFormSubmitButton"] > button:hover {
+    background: linear-gradient(110deg, #603d91, #4f2f7b) !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
 }
 
 .stButton > button {
-    background: linear-gradient(110deg, #176b70, #238b88);
+    background: linear-gradient(110deg, #7953b5, #684099);
     color: white !important;
     border: none;
     border-radius: 12px;
@@ -431,15 +518,51 @@ h2, h3 {
 }
 
 .stButton > button:hover {
-    background: linear-gradient(110deg, #10565c, #176b70);
-    box-shadow: 0 5px 15px rgba(23, 107, 112, 0.2);
+    background: linear-gradient(110deg, #603d91, #4f2f7b);
+    color: white !important;
+    box-shadow: 0 5px 15px rgba(79, 47, 123, 0.24);
     transform: translateY(-2px);
 }
 
+.stButton > button,
+.stButton > button * {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+[data-testid="stFormSubmitButton"] button {
+    background: linear-gradient(110deg, #7953b5, #684099) !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    border: none !important;
+    border-radius: 12px;
+    min-height: 46px;
+    font-weight: 700;
+    opacity: 1 !important;
+    box-shadow: 0 5px 14px rgba(79, 47, 123, 0.2);
+}
+
+[data-testid="stFormSubmitButton"] button * {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+[data-testid="stFormSubmitButton"] button:hover {
+    background: linear-gradient(110deg, #603d91, #4f2f7b) !important;
+    color: #ffffff !important;
+}
+
+[data-testid="stFormSubmitButton"] button:disabled {
+    background: #70558f !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    cursor: not-allowed;
+}
+
 .stDownloadButton > button {
-    background: #e5f3f2;
-    color: #155e63 !important;
-    border: 1px solid #b9dcda;
+    background: #f1eafb;
+    color: #4b2f6f !important;
+    border: 1px solid #d5c3ed;
     border-radius: 10px;
 }
 
@@ -451,7 +574,7 @@ h2, h3 {
 
 .subject-card {
     background: white;
-    border: 1px solid #dce8ed;
+    border: 1px solid #e4d8f2;
     border-radius: 16px;
     padding: 20px 16px;
     min-height: 150px;
@@ -464,24 +587,24 @@ h2, h3 {
 
 .subject-card:hover {
     transform: translateY(-4px);
-    border-color: #9bcac7;
+    border-color: #b69bd5;
     box-shadow: 0 10px 24px rgba(21, 52, 72, 0.13);
 }
 
 .subject-card h3 {
-    color: #176b70 !important;
+    color: #533779 !important;
     font-size: 17px;
     margin-bottom: 8px;
 }
 
 .subject-card p {
-    color: #64748b;
+    color: #554966;
     font-size: 13px;
     line-height: 1.5;
 }
 
 .page-hero {
-    background: linear-gradient(120deg, #153448, #176b70);
+    background: linear-gradient(120deg, #302044, #624184);
     background-size: 180% 180%;
     border-radius: 20px;
     padding: 30px;
@@ -508,8 +631,12 @@ h2, h3 {
     margin-bottom: 0;
 }
 
+[data-testid="stMain"] .page-hero p {
+    color: #e1f2f1 !important;
+}
+
 .step-label {
-    color: #176b70;
+    color: #604582;
     font-size: 12px;
     font-weight: 800;
     letter-spacing: 1.2px;

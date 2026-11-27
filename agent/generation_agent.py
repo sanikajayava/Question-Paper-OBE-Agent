@@ -12,6 +12,14 @@ from agent.blueprint_agent import BlueprintAgent
 from agent.question_selection_agent import QuestionSelectionAgent
 
 
+DURATIONS_BY_MARKS = {
+    30: "60 Minutes",
+    40: "75 Minutes",
+    60: "2 Hours",
+    100: "3 Hours",
+}
+
+
 class QuestionGenerationAgent:
 
     def __init__(self):
@@ -141,6 +149,10 @@ class QuestionGenerationAgent:
         questions_per_unit = blueprint["question_counts_by_unit"]
         sub_marks = blueprint["sub_marks"]
         instructions = blueprint["instructions"]
+        duration = DURATIONS_BY_MARKS.get(
+            total_marks,
+            "3 Hours" if exam_type == "ESA" else "2 Hours",
+        )
 
         # 5. Create question paper structure
         paper = {
@@ -148,7 +160,7 @@ class QuestionGenerationAgent:
             "course_code": lesson_plan.get("course_code", "Auto"),
             "exam_type": exam_type,
             "total_marks": total_marks,
-            "duration": "3 Hours" if exam_type == "ESA" else "2 Hours",
+            "duration": duration,
             "instructions": instructions,
             "blueprint": blueprint,
             "analysis_summary": (

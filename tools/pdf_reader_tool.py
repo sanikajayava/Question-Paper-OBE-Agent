@@ -2,11 +2,17 @@ import pymupdf
 import pytesseract
 from PIL import Image
 import io
+import os
+import shutil
 
-# ==========================================
-# CONFIGURATION: Tell Python where Tesseract is
-# ==========================================
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+tesseract_cmd = os.getenv("TESSERACT_CMD") or shutil.which("tesseract")
+if not tesseract_cmd and os.name == "nt":
+    windows_tesseract = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+    if os.path.isfile(windows_tesseract):
+        tesseract_cmd = windows_tesseract
+
+if tesseract_cmd:
+    pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
 
 def extract_text_from_pdf(pdf_path):
     """

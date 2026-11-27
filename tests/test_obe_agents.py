@@ -174,6 +174,33 @@ class ObeAgentTests(unittest.TestCase):
         self.assertTrue(units_used)
         self.assertTrue(units_used.issubset(set(paper["blueprint"]["selected_units"])))
 
+    def test_paper_duration_matches_total_marks(self):
+        lesson = {
+            "course": "Test Subject",
+            "units": {
+                "Unit 1": {"title": "One", "topics": ["neural networks"]},
+                "Unit 2": {"title": "Two", "topics": ["optimization"]},
+            },
+        }
+        expected_durations = {
+            30: "60 Minutes",
+            40: "75 Minutes",
+            60: "2 Hours",
+            100: "3 Hours",
+        }
+
+        for total_marks, expected_duration in expected_durations.items():
+            with self.subTest(total_marks=total_marks):
+                paper = QuestionGenerationAgent().generate_paper(
+                    [],
+                    lesson,
+                    {"dominant_level": "L2_Understand"},
+                    total_marks,
+                    10,
+                    "ISA1",
+                )
+                self.assertEqual(paper["duration"], expected_duration)
+
 
 if __name__ == "__main__":
     unittest.main()

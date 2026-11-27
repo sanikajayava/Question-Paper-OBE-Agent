@@ -1,0 +1,7 @@
+streamlit>=1.40
+plotly>=5.0
+fpdf2>=2.7
+PyMuPDF>=1.24
+pytesseract>=0.3.10
+Pillow>=10
+-r requirements-ai.txt

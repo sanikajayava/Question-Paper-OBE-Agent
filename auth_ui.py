@@ -3,6 +3,7 @@ import streamlit as st
 
 from auth import (
     initialize_database,
+    create_admin,
     verify_admin,
     verify_faculty,
     create_faculty,
@@ -12,10 +13,31 @@ from auth import (
 )
 
 
+def bootstrap_admin_from_secrets():
+    try:
+        initial_admin = st.secrets["initial_admin"]
+    except (FileNotFoundError, KeyError):
+        return
+
+    admin_id = str(initial_admin.get("id", "")).strip()
+    password = str(initial_admin.get("password", ""))
+    if not admin_id and not password:
+        return
+    if not admin_id or len(password) < 8:
+        st.error(
+            "The initial_admin secret must include an ID and a password "
+            "with at least 8 characters."
+        )
+        st.stop()
+
+    create_admin(admin_id, password)
+
+
 
 def render_login():
 
     initialize_database()
+    bootstrap_admin_from_secrets()
 
     st.markdown("""
     <style>
@@ -49,13 +71,13 @@ def render_login():
     }
 
     .login-left {
-        background: linear-gradient(145deg, #102A43, #155E75, #0F766E);
+        background: linear-gradient(145deg, #302044, #624184, #7953B5);
         background-size: 180% 180%;
         padding: 45px 35px;
         border-radius: 20px;
         color: white;
         min-height: 490px;
-        box-shadow: 0 12px 35px rgba(16, 42, 67, 0.15);
+        box-shadow: 0 12px 35px rgba(48, 32, 68, 0.18);
         animation:
             login-fade-up 650ms ease-out both,
             login-gradient-drift 18s ease-in-out infinite;
@@ -64,7 +86,7 @@ def render_login():
 
     .login-left:hover {
         transform: translateY(-3px);
-        box-shadow: 0 18px 42px rgba(16, 42, 67, 0.2);
+        box-shadow: 0 18px 42px rgba(48, 32, 68, 0.24);
     }
 
     .login-left h1 {
@@ -90,32 +112,32 @@ def render_login():
         background: white;
         padding: 25px 22px;
         border-radius: 20px;
-        border: 1px solid #E2E8F0;
-        box-shadow: 0 12px 35px rgba(16, 42, 67, 0.08);
+        border: 1px solid #E4D8F2;
+        box-shadow: 0 12px 35px rgba(48, 32, 68, 0.1);
         animation: login-fade-up 650ms 100ms ease-out both;
     }
 
     .login-right h2 {
-        color: #102A43 !important;
+        color: #35204F !important;
         font-size: 28px;
     }
 
     .login-caption {
-        color: #64748B;
+        color: #554966;
         font-size: 14px;
         margin-bottom: 20px;
     }
 
     div[data-testid="stForm"] {
-        background: #F8FAFC;
-        border: 1px solid #E2E8F0;
+        background: #F5F0FF;
+        border: 1px solid #E4D8F2;
         border-radius: 14px;
         padding: 18px;
         animation: login-fade-up 650ms 180ms ease-out both;
     }
 
     div[data-testid="stFormSubmitButton"] button {
-        background: #0F766E;
+        background: #7953B5;
         color: white;
         border: none;
         border-radius: 9px;
@@ -126,10 +148,10 @@ def render_login():
     }
 
     div[data-testid="stFormSubmitButton"] button:hover {
-        background: #115E59;
+        background: #603D91;
         color: white;
         transform: translateY(-2px);
-        box-shadow: 0 6px 14px rgba(15, 118, 110, 0.22);
+        box-shadow: 0 6px 14px rgba(79, 47, 123, 0.28);
     }
 
     @media (max-width: 700px) {
