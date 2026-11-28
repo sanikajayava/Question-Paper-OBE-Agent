@@ -1347,27 +1347,32 @@ elif page == "Configure Examination":
 
     st.markdown("### Examination Details")
 
+    exam_type = st.selectbox(
+        "Examination Type",
+        ["ISA1", "ISA2", "ESA"],
+        key="question_paper_exam_type",
+        help="Choose the examination for which the paper is required."
+    )
+
+    marks_options = (
+        [30, 40]
+        if exam_type in ["ISA1", "ISA2"]
+        else [60, 100]
+    )
+    total_marks_key = "question_paper_total_marks"
+    if st.session_state.get(total_marks_key) not in marks_options:
+        st.session_state[total_marks_key] = marks_options[0]
+
     with st.form("question_paper_form"):
 
         col1, col2 = st.columns(2)
 
         with col1:
 
-            exam_type = st.selectbox(
-                "Examination Type",
-                ["ISA1", "ISA2", "ESA"],
-                help="Choose the examination for which the paper is required."
-            )
-
-            marks_options = (
-                [30, 40]
-                if exam_type in ["ISA1", "ISA2"]
-                else [60, 100]
-            )
-
             total_marks = st.selectbox(
                 "Total Marks",
-                marks_options
+                marks_options,
+                key=total_marks_key
             )
 
         with col2:
